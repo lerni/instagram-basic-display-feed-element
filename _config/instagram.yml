@@ -1,0 +1,12 @@
+---
+Name: instagram-basic-display-feed
+---
+SilverStripe\Control\Director:
+  rules:
+    '_instaauth/': 'Kraftausdruck\InstagramFeed\Control\InstaAuthController'
+
+# Kraftausdruck\InstagramFeed\Control\InstaAuthController:
+#  credentials:
+#   appId: ''
+#   appSecret: ''
+#   redirectUri: 'https://domain.tld/_instaauth/'

@@ -1,0 +1,24 @@
+{
+  "name": "lerni/instagram-basic-display-feed-element",
+  "description": "Instagram Feed for Silverstripe Elemental features Basic Display PHP API",
+  "type": "silverstripe-vendormodule",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "silverstripe",
+    "elemental",
+    "instagram"
+  ],
+  "homepage": "https://github.com/lerni/instagram-basic-display-feed-element",
+  "require": {
+    "silverstripe/framework": "^4.0",
+    "espresso-dev/instagram-basic-display-php": "^1.0"
+  },
+  "extra": {
+    "installer-name": "instagram-feed"
+  },
+  "autoload": {
+    "psr-4": {
+      "Kraftausdruck\\InstagramFeed\\": "src/"
+    }
+  }
+}
