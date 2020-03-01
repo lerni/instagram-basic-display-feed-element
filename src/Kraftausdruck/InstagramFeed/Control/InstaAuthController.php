@@ -25,15 +25,13 @@ class InstaAuthController extends Controller
             ]);
 
             $token = $instagram->getOAuthToken($ShortAuthCode, true);
-            if ($token) {
-                $AuthObj->ShortLivedToken = $token;
-            }   
-            
+
             if ($LongLivedToken = $instagram->getLongLivedToken($token, true)) {
                 $AuthObj->LongLivedToken = $LongLivedToken;
                 $AuthObj->write();
                 return [
-                    'Content' => 'received token!'
+                    'Content' => _t(self::class . 'CREATEDTOKEN', 'received token!')
+
                 ];
             }
         } else {

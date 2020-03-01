@@ -15,6 +15,7 @@ use SilverStripe\Forms\GridField\GridFieldConfig_Base;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\TextField;
 use SilverStripe\View\ArrayData;
 
 class ElementInstagramFeed extends BaseElement {
@@ -26,16 +27,15 @@ class ElementInstagramFeed extends BaseElement {
 	private static $has_many = [];
 	private static $many_many = [];
 
-	private static $field_labels = [
-		'HTML' => 'Text',
-		'Limit' => 'Limit (default = 4)'
-	];
-
 	private static $owns = [];
 
 	private static $table_name = 'ElementInstagramFeed';
 
 	private static $title = 'Instagram Feed Element';
+
+	private static $defaults = [
+		'Limit' => 4
+	];
 
 	private static $inline_editable = false;
 
@@ -52,33 +52,38 @@ class ElementInstagramFeed extends BaseElement {
 		}
 
 		if ($TextEditor = $fields->dataFieldByName('HTML')) {
+			$TextEditor->setTitle(_t(self::class . 'HTMLFIELDTITLE', 'Text'));
 			$TextEditor->setRows(16);
 			$TextEditor->setAttribute('data-mce-body-class', $this->getSimpleClassName());
 		}
 
 		if ($LimitField = $fields->dataFieldByName('Limit')) {
-			$LimitField->setDescription('0 = alle resp. default 4');
+			$LimitField->setTitle(_t(self::class . 'LIMITFIELDTITLE', 'Limit'));
+			$LimitField->setDescription(_t(self::class . 'LIMITFIELDDESCRIPTION','0 = all | default 4'));
 		}
 
-		$fields->addFieldToTab('Root.Settings', 
-			LiteralField::create('redirectUri', 'redirectUri: ' . InstaAuthController::getAuthControllerRoute() . '<br/>')
+		$fields->addFieldToTab('Root.Settings',
+			$txtF = TextField::create('redirectUriTEXT', 'redirectUri', InstaAuthController::getAuthControllerRoute())
 		);
+		$txtF->setReadonly(true);
+		$txtF->setDescription(_t(self::class . 'REDIRECTURIFIELDDESCRIPTION','This value needs to be set in your FB-Application!'));
 
 		if (!$this->getLatestToken()) {
 			$fields->addFieldToTab('Root.Settings', 
-				LiteralField::create('getLoginURL', 'LoginURL: <a href="'. $this->getLoginURL() .'" target="_blank" rel="noopener">'. $this->getLoginURL() .'</a><br/>')
+				LiteralField::create('getLoginURL', _t(self::class . 'LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="'. $this->getLoginURL() .'" target="_blank" rel="noopener">'. $this->getLoginURL() .'</a><br/>')
 			);
 		} else {
 			$InstaAuthObjGridFieldConfig = GridFieldConfig_Base::create(20);
 			$InstaAuthObjGridFieldConfig->addComponents(
 				new GridFieldDeleteAction()
 			); 
-			$gridField = new GridField('InstaAuthObj', 'current Auth Object - latest one \'ll be used', InstaAuthObj::get()->sort('Created DESC'), $InstaAuthObjGridFieldConfig);
+			$gridField = new GridField('InstaAuthObj', _t(self::class . 'INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('Created DESC'), $InstaAuthObjGridFieldConfig);
+			$gridField->setDescription(_t(self::class . 'INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
 
 			$InstaAuthObjGridFieldConfig->getComponentByType(GridFieldDataColumns::class)->setDisplayFields([
 				'Created' => 'Crated',
-				'ShortLivedToken.LimitCharacters' => 'Short living token',
-				'LongLivedToken.LimitCharacters' => '60days token'
+				'LastEdited' => 'Updated',
+				'LongLivedToken.LimitCharacters' => '60 days token'
 			]);
 			
 			$fields->addFieldToTab('Root.Settings', $gridField);
@@ -159,6 +164,6 @@ class ElementInstagramFeed extends BaseElement {
 
 	public function getType()
 	{
-		return _t('ElementNameInstagramFeed', 'Instagram Feed');
+		return _t(self::class . 'NAME', 'Instagram Feed');
 	}
 }

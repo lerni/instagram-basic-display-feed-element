@@ -1,0 +1,13 @@
+en:
+  Kraftausdruck\InstagramFeed\Control\InstaAuthController:
+    CREATEDTOKEN: 'received token!'
+  Kraftausdruck\InstagramFeed\Elements\ElementInstagramFeed:
+    NAME: 'Instagram Feed'
+    HTMLFIELDTITLE: 'Text'
+    LIMITFIELDTITLE: 'Amount of posts'
+    LIMITFIELDDESCRIPTION: '0 = alle | default 4'
+    REDIRECTURIFIELDDESCRIPTION: 'This value needs to be set in your FB-Application!'
+    LOGINURLDESCRIPTION: 'Generate a API token with the link below'
+    INSTAGRAMAUTHTOKENTITLE: 'Instagram Auth Token - latest one \'ll be used'
+    INSTAGRAMAUTHTOKENDESCRIPTION: 'You\'ll retrieve a link to generate a new Token if no one is present.'
+    

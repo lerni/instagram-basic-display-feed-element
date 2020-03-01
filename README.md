@@ -1,5 +1,5 @@
 # Silverstripe instagram-basic-display-feed-element
-WIP in the sense of "release often and early"
+WIP in the sense of "release often and early" with focus on the later
 
 Retrieves a Instagram feed and shows it as an dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php), for performance reasons it caches the feed.
 
@@ -16,7 +16,7 @@ composer require lerni/instagram-basic-display-feed-element
 * Silverstripe 4.x
 * dnadesign/silverstripe-elemental
 * espresso-dev/instagram-basic-display-php 1.x
-* setup a FB App for basic display an set `appId` & `appSecret`, `redirectUri` 'll be DYNAMICALLY-SET-HOST.TLD/_instaauth/ but you also can set it with a domain per yml - you neet to configure the correct values (e.g. dev-url) in your FB App! [Facebook for Developers](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/)
+* setup a FB App for basic display an set `appId` & `appSecret`, `redirectUri` 'll be DYNAMICALLY-SET-HOST.TLD/_instaauth/ but you also can set it with a domain per yml - you need to configure the correct values (e.g. dev-url) in your FB App! [Facebook for Developers](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/)
 
 # Configuration
 ```yaml
@@ -28,7 +28,6 @@ Kraftausdruck\InstagramFeed\Control\InstaAuthController:
 ```
 
 # Todo
-* Multiple Members, per hash?
-* translations
+* Multiple Members not just `Me`, per hash?
 * how is pagination supposed to work?
 * may just an extension not an element?

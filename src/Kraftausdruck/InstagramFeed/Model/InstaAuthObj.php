@@ -6,7 +6,6 @@ use SilverStripe\ORM\DataObject;
 
 class InstaAuthObj extends DataObject {
 	private static $db = [
-		'ShortLivedToken' => 'Text',
 		'LongLivedToken' => 'Text'
 	];
 
@@ -15,7 +14,8 @@ class InstaAuthObj extends DataObject {
 	private static $default_sort = 'LastEdited DESC';
 
 	private static $summary_fields = [
-		'Created'
+		'Created',
+		'LastEdited'
 	];
 
 	public function getCMSFields() {
