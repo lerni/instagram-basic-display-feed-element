@@ -16,9 +16,9 @@ composer require lerni/instagram-basic-display-feed-element
 * Silverstripe 4.x
 * dnadesign/silverstripe-elemental
 * espresso-dev/instagram-basic-display-php 1.x
-* setup a FB App for basic display an set `appId` & `appSecret`, `redirectUri` 'll be DYNAMICALLY-SET-HOST.TLD/_instaauth/ but you also can set it with a domain per yml - you need to configure the correct values (e.g. dev-url) in your FB App! [Facebook for Developers](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/)
 
 # Configuration
+You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display an set `appId` & `appSecret`, `redirectUri` 'll be DYNAMICALLY-SET-HOST.TLD/_instaauth/ but you can also set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. also dev-url) in your FB App! If no token is present you'll see a link to generate on under settings in the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
 ```yaml
 Kraftausdruck\InstagramFeed\Control\InstaAuthController:
  credentials:

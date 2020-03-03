@@ -5,9 +5,8 @@ en:
     NAME: 'Instagram Feed'
     HTMLFIELDTITLE: 'Text'
     LIMITFIELDTITLE: 'Amount of posts'
-    LIMITFIELDDESCRIPTION: '0 = alle | default 4'
+    LIMITFIELDDESCRIPTION: '0 = all | default 4'
     REDIRECTURIFIELDDESCRIPTION: 'This value needs to be set in your FB-Application!'
     LOGINURLDESCRIPTION: 'Generate a API token with the link below'
-    INSTAGRAMAUTHTOKENTITLE: 'Instagram Auth Token - latest one \'ll be used'
-    INSTAGRAMAUTHTOKENDESCRIPTION: 'You\'ll retrieve a link to generate a new Token if no one is present.'
-    
+    INSTAGRAMAUTHTOKENTITLE: 'Instagram Auth Token - latest one ''ll be used'
+    INSTAGRAMAUTHTOKENDESCRIPTION: 'You''ll retrieve a link to generate a new Token if none is present. The token ''ll be renewed automatically if older than 30 days.'
