@@ -1,6 +1,6 @@
 de:
   Kraftausdruck\InstagramFeed\Control\InstaAuthController:
-    CREATEDTOKEN: 'Token erhalten!'
+    CREATEDTOKEN: 'Token erhalten!<br/><a href="/home">/home</a>'
   Kraftausdruck\InstagramFeed\Elements\ElementInstagramFeed:
     NAME: 'Instagram Feed'
     HTMLFIELDTITLE: 'Text'
@@ -9,4 +9,4 @@ de:
     REDIRECTURIFIELDDESCRIPTION: 'Dieser Wert muss in Ihrer FB-Anwendung eingestellt werden!'
     LOGINURLDESCRIPTION: 'Generieren Sie ein API-Token mit dem folgenden Link'
     INSTAGRAMAUTHTOKENTITLE: 'Instagram Auth Token - das neueste wird verwendet'
-    INSTAGRAMAUTHTOKENDESCRIPTION: 'Wenn kein Token vorhanden ist, wird ein Link angezeigt um ein Token zu generieren, wenn keines vorhanden ist. Der Token wird automatisch erneuert, wenn er älter als 30 Tage ist.'
+    INSTAGRAMAUTHTOKENDESCRIPTION: 'Wenn kein Token vorhanden ist, wird ein Link angezeigt um ein Token zu generieren. Das Token wird automatisch erneuert, wenn es älter als 30 Tage ist.'

@@ -30,8 +30,7 @@ class InstaAuthController extends Controller
                 $AuthObj->LongLivedToken = $LongLivedToken;
                 $AuthObj->write();
                 return [
-                    'Content' => _t(self::class . 'CREATEDTOKEN', 'received token!')
-
+                    'Content' => _t(self::class . '.CREATEDTOKEN', 'received token!<br/><a href="/home">/home</a>')
                 ];
             }
         } else {
@@ -47,7 +46,7 @@ class InstaAuthController extends Controller
 		if (array_key_exists('redirectUri', $instacredentials)) {
 			$url = $instacredentials['redirectUri'];
 		} else {
-            $url = Controller::join_links(Director::absoluteBaseURL() , '_instaauth');
+            $url = Controller::join_links(Director::absoluteBaseURL() , '_instaauth/');
 		}
 		return $url;
 	}

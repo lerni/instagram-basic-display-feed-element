@@ -52,33 +52,33 @@ class ElementInstagramFeed extends BaseElement {
 		}
 
 		if ($TextEditor = $fields->dataFieldByName('HTML')) {
-			$TextEditor->setTitle(_t(self::class . 'HTMLFIELDTITLE', 'Text'));
+			$TextEditor->setTitle(_t(self::class . '.HTMLFIELDTITLE', 'Text'));
 			$TextEditor->setRows(16);
 			$TextEditor->setAttribute('data-mce-body-class', $this->getSimpleClassName());
 		}
 
 		if ($LimitField = $fields->dataFieldByName('Limit')) {
-			$LimitField->setTitle(_t(self::class . 'LIMITFIELDTITLE', 'Limit'));
-			$LimitField->setDescription(_t(self::class . 'LIMITFIELDDESCRIPTION','0 = all | default 4'));
+			$LimitField->setTitle(_t(self::class . '.LIMITFIELDTITLE', 'Limit'));
+			$LimitField->setDescription(_t(self::class . '.LIMITFIELDDESCRIPTION','0 = all | default 4'));
 		}
 
 		$fields->addFieldToTab('Root.Settings',
 			$txtF = TextField::create('redirectUriTEXT', 'redirectUri', InstaAuthController::getAuthControllerRoute())
 		);
 		$txtF->setReadonly(true);
-		$txtF->setDescription(_t(self::class . 'REDIRECTURIFIELDDESCRIPTION','This value needs to be set in your FB-Application!'));
+		$txtF->setDescription(_t(self::class . '.REDIRECTURIFIELDDESCRIPTION','This value needs to be set in your FB-Application!'));
 
 		if (!$this->getLatestToken()) {
 			$fields->addFieldToTab('Root.Settings', 
-				LiteralField::create('getLoginURL', _t(self::class . 'LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="'. $this->getLoginURL() .'" target="_blank" rel="noopener">'. $this->getLoginURL() .'</a><br/>')
+				LiteralField::create('getLoginURL', _t(self::class . '.LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="'. $this->getLoginURL() .'" target="_blank" rel="noopener">'. $this->getLoginURL() .'</a><br/>')
 			);
 		} else {
 			$InstaAuthObjGridFieldConfig = GridFieldConfig_Base::create(20);
 			$InstaAuthObjGridFieldConfig->addComponents(
 				new GridFieldDeleteAction()
 			); 
-			$gridField = new GridField('InstaAuthObj', _t(self::class . 'INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('Created DESC'), $InstaAuthObjGridFieldConfig);
-			$gridField->setDescription(_t(self::class . 'INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
+			$gridField = new GridField('InstaAuthObj', _t(self::class . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('Created DESC'), $InstaAuthObjGridFieldConfig);
+			$gridField->setDescription(_t(self::class . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
 
 			$InstaAuthObjGridFieldConfig->getComponentByType(GridFieldDataColumns::class)->setDisplayFields([
 				'Created' => 'Crated',
@@ -139,23 +139,24 @@ class ElementInstagramFeed extends BaseElement {
 				
 			$this->cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
 			
-			$instagram->setAccessToken($this->getLatestToken());
-	
-			$media = $instagram->getUserMedia($id = 'me', $this->Limit);
-			$mediaArray = json_decode(json_encode($media->data), true); // object2array through json
-			$mediaArrayList = ArrayList::create($mediaArray);
+			$r = ArrayData::create();
 
-			$profile = $instagram->getUserProfile();
-			$profileArray = json_decode(json_encode($profile), true); // object2array through json
-			$profileArrayData = ArrayData::create($profileArray);
+			if ($LatestToken = $this->getLatestToken()) {
+				$instagram->setAccessToken($LatestToken);
+				$media = $instagram->getUserMedia($id = 'me', $this->Limit);
+				$mediaArray = json_decode(json_encode($media->data), true); // object2array through json
+				$mediaArrayList = ArrayList::create($mediaArray);
 
+				$profile = $instagram->getUserProfile();
+				$profileArray = json_decode(json_encode($profile), true); // object2array through json
+				$profileArrayData = ArrayData::create($profileArray);
 
-			$r = ArrayData::create([
-				'Media' => $mediaArrayList,
-				'Profile' => $profileArrayData
-			]);
+				$r->Media = $mediaArrayList;
+				$r->Profile = $profileArrayData;
 
-			$this->cache->set('InstagramCache', $r);
+				$this->cache->set('InstagramCache', $r);
+			}
+			
 		} else {
 			$r = $this->cache->get('InstagramCache');
 		}
@@ -164,6 +165,6 @@ class ElementInstagramFeed extends BaseElement {
 
 	public function getType()
 	{
-		return _t(self::class . 'NAME', 'Instagram Feed');
+		return _t(self::class . '.NAME', 'Instagram Feed');
 	}
 }
