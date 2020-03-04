@@ -8,12 +8,20 @@ use SilverStripe\Control\HTTPRequest;
 use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\ORM\FieldType\DBHTMLText;
 
 class InstaAuthController extends Controller
 {
     public function index(HTTPRequest $request)
     {
-        if ($ShortAuthCode = $request->getVar('code')) {
+        // parse referer to check if XY.instagram.com is calling
+        $ref = $request->getHeaders();
+        $ref = parse_url($ref['referer']);
+        $ref = $ref['host'];
+        $hostName = explode(".", $ref);
+        $mainDomainName = $hostName[count($hostName)-2] . "." . $hostName[count($hostName)-1];
+
+        if ($request->getVar('code') && $mainDomainName == 'instagram.com') {
             $AuthObj = InstaAuthObj::create();
             $redirectUri = $this->getAuthControllerRoute();
 
@@ -24,13 +32,15 @@ class InstaAuthController extends Controller
                 'redirectUri' => $redirectUri
             ]);
 
-            $token = $instagram->getOAuthToken($ShortAuthCode, true);
+            $token = $instagram->getOAuthToken($request->getVar('code'), true);
 
             if ($LongLivedToken = $instagram->getLongLivedToken($token, true)) {
                 $AuthObj->LongLivedToken = $LongLivedToken;
                 $AuthObj->write();
+                $obj = DBHTMLText::create();
+                $obj->setValue(_t(self::class . '.CREATEDTOKEN', 'received token!<br/><a href="/home">/home</a>'));
                 return [
-                    'Content' => _t(self::class . '.CREATEDTOKEN', 'received token!<br/><a href="/home">/home</a>')
+                    'Content' => $obj
                 ];
             }
         } else {

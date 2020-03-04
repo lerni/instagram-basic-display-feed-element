@@ -6,7 +6,7 @@ de:
     HTMLFIELDTITLE: 'Text'
     LIMITFIELDTITLE: 'Anzahl der Posts'
     LIMITFIELDDESCRIPTION: '0 = alle | default 4'
-    REDIRECTURIFIELDDESCRIPTION: 'Dieser Wert muss in Ihrer FB-Anwendung eingestellt werden!'
+    REDIRECTURIFIELDDESCRIPTION: 'Diese URL muss in der FB-Anwendung hinterlegt sein!'
     LOGINURLDESCRIPTION: 'Generieren Sie ein API-Token mit dem folgenden Link'
     INSTAGRAMAUTHTOKENTITLE: 'Instagram Auth Token - das neueste wird verwendet'
     INSTAGRAMAUTHTOKENDESCRIPTION: 'Wenn kein Token vorhanden ist, wird ein Link angezeigt um ein Token zu generieren. Das Token wird automatisch erneuert, wenn es älter als 30 Tage ist.'

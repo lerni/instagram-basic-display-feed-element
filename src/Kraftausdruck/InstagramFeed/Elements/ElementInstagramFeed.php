@@ -14,6 +14,7 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_Base;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
+use SilverStripe\Forms\HeaderField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\View\ArrayData;
@@ -62,11 +63,12 @@ class ElementInstagramFeed extends BaseElement {
 			$LimitField->setDescription(_t(self::class . '.LIMITFIELDDESCRIPTION','0 = all | default 4'));
 		}
 
-		$fields->addFieldToTab('Root.Settings',
-			$txtF = TextField::create('redirectUriTEXT', 'redirectUri', InstaAuthController::getAuthControllerRoute())
-		);
-		$txtF->setReadonly(true);
-		$txtF->setDescription(_t(self::class . '.REDIRECTURIFIELDDESCRIPTION','This value needs to be set in your FB-Application!'));
+		$fields->addFieldsToTab('Root.Settings', [
+			HeaderField::create('InstagramAPI', 'Instagram API'),
+			$redirectUriField = TextField::create('redirectUriTEXT', 'redirectUri', InstaAuthController::getAuthControllerRoute())
+		]);
+		$redirectUriField->setReadonly(true);
+		$redirectUriField->setDescription(_t(self::class . '.REDIRECTURIFIELDDESCRIPTION','This URL must be deposited in the FB application!'));
 
 		if (!$this->getLatestToken()) {
 			$fields->addFieldToTab('Root.Settings', 
@@ -116,10 +118,13 @@ class ElementInstagramFeed extends BaseElement {
 		$latestAuthObj = InstaAuthObj::get()->first();;
 
 		if ($latestAuthObj) {
-			$ago = date('Y-m-d H:i:s', strtotime('-30 days'));
-			if ($latestAuthObj->Created < $ago) {
+			$agoSoft = date('Y-m-d H:i:s', strtotime('-30 days'));
+			$agoHard = date('Y-m-d H:i:s', strtotime('-60 days'));
+			if ($latestAuthObj->Created < $agoSoft) {
 				$instagram = $this->InstagramInstance();
-				if ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
+				if ($latestAuthObj->Created < $agoHard) {
+					user_error('Instagram token expired!', E_USER_WARNING);
+				} elseif ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
 					$latestAuthObj->LongLivedToken = $LongLivedToken;
 					$latestAuthObj->write();
 				}
