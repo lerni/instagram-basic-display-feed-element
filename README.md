@@ -22,9 +22,9 @@ You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-b
 
 1. Install the module
 2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `.../_instaauth/` as redirectUri
-3. Add `appId` & `appSecret` to yml & `?flush
+3. Add `appId` & `appSecret` to yml & `?flush`
 4. Create an Instagram Feed Element & click on the Link in the setting-tab to authenticate
-5. reload CMS so see the generated Token
+5. reload CMS to see the generated token
 6. Use it. Token 'll be updated if older than 30 days on request basis. This means if a token is older than 30 day and from there on no html-request is made (element is never shown to any visitor), the token invalidates and a waring is thrown. To fix this you'll need to delete all tokens and regenerate one with the link provided in the CMS.
 
 

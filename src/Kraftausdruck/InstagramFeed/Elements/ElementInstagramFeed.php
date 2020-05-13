@@ -83,6 +83,7 @@ class ElementInstagramFeed extends BaseElement {
 			$gridField->setDescription(_t(self::class . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
 
 			$InstaAuthObjGridFieldConfig->getComponentByType(GridFieldDataColumns::class)->setDisplayFields([
+				'user_id' => 'User ID',
 				'Created' => 'Crated',
 				'LastEdited' => 'Updated',
 				'LongLivedToken.LimitCharacters' => '60 days token'

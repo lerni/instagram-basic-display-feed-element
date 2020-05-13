@@ -32,10 +32,12 @@ class InstaAuthController extends Controller
                 'redirectUri' => $redirectUri
             ]);
 
-            $token = $instagram->getOAuthToken($request->getVar('code'), true);
+            $token = $instagram->getOAuthToken($request->getVar('code'), false);
+            $LongLivedToken = $instagram->getLongLivedToken($token->access_token, true);
 
-            if ($LongLivedToken = $instagram->getLongLivedToken($token, true)) {
+            if ($LongLivedToken) {
                 $AuthObj->LongLivedToken = $LongLivedToken;
+                $AuthObj->user_id = $token->user_id;
                 $AuthObj->write();
                 $obj = DBHTMLText::create();
                 $obj->setValue(_t(self::class . '.CREATEDTOKEN', 'received token!<br/><a href="/home">/home</a>'));

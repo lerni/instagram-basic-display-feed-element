@@ -6,7 +6,8 @@ use SilverStripe\ORM\DataObject;
 
 class InstaAuthObj extends DataObject {
 	private static $db = [
-		'LongLivedToken' => 'Text'
+		'LongLivedToken' => 'Text',
+		'user_id' => 'Varchar(255)'
 	];
 
 	private static $table_name = 'InstaAuthObj';
@@ -15,7 +16,8 @@ class InstaAuthObj extends DataObject {
 
 	private static $summary_fields = [
 		'Created',
-		'LastEdited'
+		'LastEdited',
+		'user_id'
 	];
 
 	public function getCMSFields() {
