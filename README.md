@@ -18,7 +18,7 @@ composer require lerni/instagram-basic-display-feed-element
 * espresso-dev/instagram-basic-display-php 1.x
 
 # Configuration
-You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret`, `redirectUri` 'll be `DYNAMICALLY-SET-HOST.TLD/_instaauth/`. You also can set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. also dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one it the setting-tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
+You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret`, `redirectUri` 'll be `DYNAMICALLY-SET-HOST.TLD/_instaauth/`. You also can set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. also dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one in the setting-tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
 
 1. Install the module
 2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `.../_instaauth/` as redirectUri

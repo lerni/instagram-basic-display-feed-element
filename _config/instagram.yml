@@ -5,6 +5,13 @@ SilverStripe\Control\Director:
   rules:
     '_instaauth/': 'Kraftausdruck\InstagramFeed\Control\InstaAuthController'
 
+SilverStripe\Core\Injector\Injector:
+  Psr\SimpleCache\CacheInterface.InstagramCache:
+    factory: SilverStripe\Core\Cache\CacheFactory
+    constructor:
+      defaultLifetime: 1200
+      namespace: "InstagramCache"
+
 # Kraftausdruck\InstagramFeed\Control\InstaAuthController:
 #  credentials:
 #   appId: ''
