@@ -19,7 +19,7 @@ class InstaAuthController extends Controller
         $ref = parse_url($ref['referer']);
         $ref = $ref['host'];
         $hostName = explode(".", $ref);
-        $mainDomainName = $hostName[count($hostName)-2] . "." . $hostName[count($hostName)-1];
+        $mainDomainName = $hostName[count($hostName) - 2] . "." . $hostName[count($hostName) - 1];
 
         if ($request->getVar('code') && $mainDomainName == 'instagram.com') {
             $AuthObj = InstaAuthObj::create();
@@ -46,20 +46,20 @@ class InstaAuthController extends Controller
                 ];
             }
         } else {
-			return $this->httpError(404);
-		}
+            return $this->httpError(404);
+        }
     }
 
     public static function getAuthControllerRoute()
     {
-		// get redirectUri from config or generate dynamically with absoluteURL
-		$instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+        // get redirectUri from config or generate dynamically with absoluteURL
+        $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
 
-		if (array_key_exists('redirectUri', $instacredentials)) {
-			$url = $instacredentials['redirectUri'];
-		} else {
-            $url = Controller::join_links(Director::absoluteBaseURL() , '_instaauth/');
-		}
-		return $url;
-	}
+        if (array_key_exists('redirectUri', $instacredentials)) {
+            $url = $instacredentials['redirectUri'];
+        } else {
+            $url = Controller::join_links(Director::absoluteBaseURL(), '_instaauth/');
+        }
+        return $url;
+    }
 }
