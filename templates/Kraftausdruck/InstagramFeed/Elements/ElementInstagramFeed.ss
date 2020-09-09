@@ -3,9 +3,9 @@
 <% if $InstagramFeed.Media %>
     <div class="instafeed">
     <% loop $InstagramFeed.Media %>
-        <% if $media_type == "IMAGE" %>
-        <a class="$medi_type" href="$permalink" target="_blank" rel="noopener">
-            <img src="$media_url" alt="$caption" />
+        <% if $media_type == "IMAGE" || $media_type == "CAROUSEL_ALBUM" %>
+        <a class="$media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
+            <img loading="auto" src="$media_url" alt="$caption" />
         </a>
         <% end_if %>
     <% end_loop %>

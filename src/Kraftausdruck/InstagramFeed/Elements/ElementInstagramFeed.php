@@ -2,24 +2,25 @@
 
 namespace Kraftausdruck\InstagramFeed\Elements;
 
-use Kraftausdruck\InstagramFeed\Control\InstaAuthController;
-use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
-use DNADesign\Elemental\Models\BaseElement;
-use SilverStripe\Core\Injector\Injector;
-use Psr\SimpleCache\CacheInterface;
 use SilverStripe\ORM\ArrayList;
-use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
+use SilverStripe\Core\Flushable;
+use SilverStripe\View\ArrayData;
+use SilverStripe\Forms\TextField;
+use Psr\SimpleCache\CacheInterface;
+use SilverStripe\Forms\HeaderField;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Core\Injector\Injector;
+use DNADesign\Elemental\Models\BaseElement;
 use SilverStripe\Forms\GridField\GridField;
+use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
 use SilverStripe\Forms\GridField\GridFieldConfig_Base;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
-use SilverStripe\Forms\HeaderField;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\TextField;
-use SilverStripe\View\ArrayData;
+use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
+use Kraftausdruck\InstagramFeed\Control\InstaAuthController;
 
-class ElementInstagramFeed extends BaseElement
+class ElementInstagramFeed extends BaseElement implements Flushable
 {
     private static $db = [
         'HTML' => 'HTMLText',
@@ -140,7 +141,10 @@ class ElementInstagramFeed extends BaseElement
 
     public function getInstagramFeed()
     {
+        $cacheKey = implode([$this->ID, $this->LastEdited, InstaAuthObj::get()->max('LastEdited')]);
         $this->cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
+        $this->cache->set('InstagramCacheKey', $cacheKey);
+
         if (!$this->cache->has('InstagramCache')) {
 
             $instagram = $this->InstagramInstance();
@@ -168,6 +172,11 @@ class ElementInstagramFeed extends BaseElement
             $r = $this->cache->get('InstagramCache');
         }
         return $r;
+    }
+
+    public static function flush()
+    {
+        Injector::inst()->get(CacheInterface::class . '.InstagramCache')->clear();
     }
 
     public function getType()
