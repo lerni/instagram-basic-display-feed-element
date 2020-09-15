@@ -19,6 +19,7 @@ use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
 use Kraftausdruck\InstagramFeed\Control\InstaAuthController;
+use SilverStripe\ORM\DataObject;
 
 class ElementInstagramFeed extends BaseElement implements Flushable
 {
@@ -156,8 +157,26 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             if ($LatestToken = $this->getLatestToken()) {
                 $instagram->setAccessToken($LatestToken);
                 $media = $instagram->getUserMedia($id = 'me', $this->Limit);
-                $mediaArray = json_decode(json_encode($media->data), true); // object2array through json
-                $mediaArrayList = ArrayList::create($mediaArray);
+
+                $mediaArrayList = ArrayList::create();
+
+                foreach ($media->data as $mediaItem) {
+
+                    $mediaObjt = DataObject::create();
+
+                    foreach ($mediaItem as $key => $value) {
+                        if (is_string($key) && is_string($value)) {
+                            $mediaObjt->{$key} = $value;
+                        }
+                    }
+
+                    if (property_exists($mediaItem, 'children') && count($mediaItem->children->data)) {
+                        $mediaChildrenArray = json_decode(json_encode($mediaItem->children->data), true); // object2array through json
+                        $mediaChildrenArrayList = ArrayList::create($mediaChildrenArray);
+                        $mediaObjt->Children = $mediaChildrenArrayList;
+                    }
+                    $mediaArrayList->push($mediaObjt);
+                }
 
                 $profile = $instagram->getUserProfile();
                 $profileArray = json_decode(json_encode($profile), true); // object2array through json

@@ -3,10 +3,24 @@
 <% if $InstagramFeed.Media %>
     <div class="instafeed">
     <% loop $InstagramFeed.Media %>
-        <% if $media_type == "IMAGE" || $media_type == "CAROUSEL_ALBUM" %>
-        <a class="$media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
-            <img loading="auto" src="$media_url" alt="$caption" />
-        </a>
+        <% if $media_type == "IMAGE" %>
+            <a class="$media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
+                <figure >
+                    <img loading="auto" src="$media_url" alt="$caption" />
+                </figure>
+            </a>
+        <% end_if %>
+        <% if $media_type == "CAROUSEL_ALBUM" %>
+            <% loop $Children.Limit(1) %><%-- per default we show just one - may just incrase limit? --%>
+                <a class="$media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
+                    <figure >
+                        <img loading="auto" src="$media_url" alt="$caption" />
+                    </figure>
+                </a>
+            <% end_loop %>
+        <% end_if %>
+        <% if $media_type == "VIDEO" %>
+            <%-- todo: add template for video --%>
         <% end_if %>
     <% end_loop %>
     </div>
