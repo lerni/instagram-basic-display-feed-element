@@ -13,7 +13,7 @@ SilverStripe\Core\Injector\Injector:
       namespace: "InstagramCache"
 
 # Kraftausdruck\InstagramFeed\Control\InstaAuthController:
-#  credentials:
-#   appId: ''
-#   appSecret: ''
-#   redirectUri: 'https://domain.tld/_instaauth/'
+#   credentials:
+#     appId: ''
+#     appSecret: ''
+#     # redirectUri: 'https://domain.tld/_instaauth/'

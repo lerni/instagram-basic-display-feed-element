@@ -159,33 +159,34 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                 $media = $instagram->getUserMedia($id = 'me', $this->Limit);
 
                 $mediaArrayList = ArrayList::create();
+                if (property_exists($media, 'data')) {
+                    foreach ($media->data as $mediaItem) {
 
-                foreach ($media->data as $mediaItem) {
+                        $mediaObjt = DataObject::create();
 
-                    $mediaObjt = DataObject::create();
-
-                    foreach ($mediaItem as $key => $value) {
-                        if (is_string($key) && is_string($value)) {
-                            $mediaObjt->{$key} = $value;
+                        foreach ($mediaItem as $key => $value) {
+                            if (is_string($key) && is_string($value)) {
+                                $mediaObjt->{$key} = $value;
+                            }
                         }
+
+                        if (property_exists($mediaItem, 'children') && count($mediaItem->children->data)) {
+                            $mediaChildrenArray = json_decode(json_encode($mediaItem->children->data), true); // object2array through json
+                            $mediaChildrenArrayList = ArrayList::create($mediaChildrenArray);
+                            $mediaObjt->Children = $mediaChildrenArrayList;
+                        }
+                        $mediaArrayList->push($mediaObjt);
                     }
 
-                    if (property_exists($mediaItem, 'children') && count($mediaItem->children->data)) {
-                        $mediaChildrenArray = json_decode(json_encode($mediaItem->children->data), true); // object2array through json
-                        $mediaChildrenArrayList = ArrayList::create($mediaChildrenArray);
-                        $mediaObjt->Children = $mediaChildrenArrayList;
-                    }
-                    $mediaArrayList->push($mediaObjt);
+                    $profile = $instagram->getUserProfile();
+                    $profileArray = json_decode(json_encode($profile), true); // object2array through json
+                    $profileArrayData = ArrayData::create($profileArray);
+
+                    $r->Media = $mediaArrayList;
+                    $r->Profile = $profileArrayData;
+
+                    $this->cache->set('InstagramCache', $r);
                 }
-
-                $profile = $instagram->getUserProfile();
-                $profileArray = json_decode(json_encode($profile), true); // object2array through json
-                $profileArrayData = ArrayData::create($profileArray);
-
-                $r->Media = $mediaArrayList;
-                $r->Profile = $profileArrayData;
-
-                $this->cache->set('InstagramCache', $r);
             }
         } else {
             $r = $this->cache->get('InstagramCache');

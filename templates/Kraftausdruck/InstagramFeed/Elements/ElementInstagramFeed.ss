@@ -7,6 +7,7 @@
             <a class="$media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
                 <figure >
                     <img loading="auto" src="$media_url" alt="$caption" />
+                    <figcaption>{$caption}<span class="icon">i</span></figcaption>
                 </figure>
             </a>
         <% end_if %>
@@ -14,7 +15,11 @@
             <% loop $Children.Limit(1) %><%-- per default we show just one - may just incrase limit? --%>
                 <a class="$media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
                     <figure >
-                        <img loading="auto" src="$media_url" alt="$caption" />
+                        <img loading="auto" src="$media_url" alt="$Up.Up.caption" />
+                        <figcaption>
+                            {$Up.Up.caption}
+                            <span class="icon">i</span>
+                        </figcaption>
                     </figure>
                 </a>
             <% end_loop %>
