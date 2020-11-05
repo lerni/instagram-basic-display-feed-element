@@ -2,6 +2,7 @@
 
 namespace Kraftausdruck\InstagramFeed\Elements;
 
+use Psr\Log\LoggerInterface;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\Core\Flushable;
 use SilverStripe\View\ArrayData;
@@ -47,7 +48,10 @@ class ElementInstagramFeed extends BaseElement implements Flushable
     {
         $fields = parent::getCMSFields();
 
-        $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+        $instacredentials = [];
+        if (Config::inst()->exists(InstaAuthController::class, 'credentials')) {
+            $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+        }
         if (!array_key_exists('appId', $instacredentials)) {
             $fields->push(LiteralField::create('no-appId', '<p style="color: red"><strong>appId isn\'t configured!</strong></p>'));
         }
@@ -101,7 +105,16 @@ class ElementInstagramFeed extends BaseElement implements Flushable
 
     private function InstagramInstance()
     {
-        $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+        $instacredentials = [];
+        if (Config::inst()->exists(InstaAuthController::class, 'credentials')) {
+            $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+        }
+        if (!array_key_exists('appId', $instacredentials)) {
+            $fields->push(LiteralField::create('no-appId', '<p style="color: red"><strong>appId isn\'t configured!</strong></p>'));
+        }
+        if (!array_key_exists('appSecret', $instacredentials)) {
+            $fields->push(LiteralField::create('no-appSecret', '<p style="color: red"><strong>appSecret isn\'t configured!</strong></p>'));
+        }
 
         $redirectUri = InstaAuthController::getAuthControllerRoute();
         $instagram = new InstagramBasicDisplay([
@@ -128,7 +141,8 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             if ($latestAuthObj->Created < $agoSoft) {
                 $instagram = $this->InstagramInstance();
                 if ($latestAuthObj->Created < $agoHard) {
-                    user_error('Instagram token expired!', E_USER_WARNING);
+                    user_error('Instagram token expired!', E_USER_NOTICE);
+                    // Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
                 } elseif ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
                     $latestAuthObj->LongLivedToken = $LongLivedToken;
                     $latestAuthObj->write();
@@ -185,8 +199,12 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                     $r->Media = $mediaArrayList;
                     $r->Profile = $profileArrayData;
 
-                    $this->cache->set('InstagramCache', $r);
+                } else {
+                    Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . $media);
+                    user_error('unexpected Instagram-API response!', E_USER_NOTICE);
+                    $this->cache->set('InstagramCacheKey', $this->CacheKeyPreventAPIhammering());
                 }
+                $this->cache->set('InstagramCache', $r);
             }
         } else {
             $r = $this->cache->get('InstagramCache');
@@ -202,5 +220,13 @@ class ElementInstagramFeed extends BaseElement implements Flushable
     public function getType()
     {
         return _t(self::class . '.NAME', 'Instagram Feed');
+    }
+
+    // short cache lifetime on unexpected response,
+    // to prevent API hammering on every request
+    public function errorCacheKey()
+    {
+        // Returns a new number every x minutes
+        return (int)(time() / 60 / 3);
     }
 }
