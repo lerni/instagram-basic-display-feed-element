@@ -87,7 +87,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             $InstaAuthObjGridFieldConfig->addComponents(
                 new GridFieldDeleteAction()
             );
-            $gridField = new GridField('InstaAuthObj', _t(self::class . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('Created DESC'), $InstaAuthObjGridFieldConfig);
+            $gridField = new GridField('InstaAuthObj', _t(self::class . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('LastEdited DESC'), $InstaAuthObjGridFieldConfig);
             $gridField->setDescription(_t(self::class . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
 
             $InstaAuthObjGridFieldConfig->getComponentByType(GridFieldDataColumns::class)->setDisplayFields([
@@ -138,9 +138,9 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         if ($latestAuthObj) {
             $agoSoft = date('Y-m-d H:i:s', strtotime('-30 days'));
             $agoHard = date('Y-m-d H:i:s', strtotime('-60 days'));
-            if ($latestAuthObj->Created < $agoSoft) {
+            if ($latestAuthObj->LastEdited < $agoSoft) {
                 $instagram = $this->InstagramInstance();
-                if ($latestAuthObj->Created < $agoHard) {
+                if ($latestAuthObj->LastEdited < $agoHard) {
                     user_error('Instagram token expired!', E_USER_NOTICE);
                     // Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
                 } elseif ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
