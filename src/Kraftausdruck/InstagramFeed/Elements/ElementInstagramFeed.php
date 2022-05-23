@@ -38,6 +38,8 @@ class ElementInstagramFeed extends BaseElement implements Flushable
 
     private static $title = 'Instagram Feed Element';
 
+    private static $icon = 'font-icon-block-instagram';
+
     private static $defaults = [
         'Limit' => 4
     ];
@@ -147,9 +149,8 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                     $latestAuthObj->LongLivedToken = $LongLivedToken;
                     $latestAuthObj->write();
                 }
-            } else {
-                $LongLivedToken = $latestAuthObj->LongLivedToken;
             }
+            $LongLivedToken = $latestAuthObj->LongLivedToken;
             return $LongLivedToken;
         }
     }
@@ -198,7 +199,6 @@ class ElementInstagramFeed extends BaseElement implements Flushable
 
                     $r->Media = $mediaArrayList;
                     $r->Profile = $profileArrayData;
-
                 } else {
                     Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . $media);
                     user_error('unexpected Instagram-API response!', E_USER_NOTICE);
