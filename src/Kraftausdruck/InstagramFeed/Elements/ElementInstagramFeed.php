@@ -143,8 +143,8 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             if ($latestAuthObj->LastEdited < $agoSoft) {
                 $instagram = $this->InstagramInstance();
                 if ($latestAuthObj->LastEdited < $agoHard) {
-                    user_error('Instagram token expired!', E_USER_NOTICE);
-                    // Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
+                    Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
+                    // user_error('Instagram token expired!', E_USER_NOTICE);
                 } elseif ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
                     $latestAuthObj->LongLivedToken = $LongLivedToken;
                     $latestAuthObj->write();
@@ -200,9 +200,9 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                     $r->Media = $mediaArrayList;
                     $r->Profile = $profileArrayData;
                 } else {
-                    Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . $media);
-                    user_error('unexpected Instagram-API response!', E_USER_NOTICE);
-                    $this->cache->set('InstagramCacheKey', $this->CacheKeyPreventAPIhammering());
+                    Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . json_encode($media));
+                    // user_error('unexpected Instagram-API response!', E_USER_NOTICE);
+                    $this->cache->set('InstagramCacheKey', $this->errorCacheKey());
                 }
                 $this->cache->set('InstagramCache', $r);
             }
@@ -223,7 +223,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
     }
 
     // short cache lifetime on unexpected response,
-    // to prevent API hammering on every request
+    // prevents API hammering on every request
     public function errorCacheKey()
     {
         // Returns a new number every x minutes

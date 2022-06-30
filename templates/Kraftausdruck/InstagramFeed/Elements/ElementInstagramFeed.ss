@@ -25,7 +25,15 @@
             <% end_loop %>
         <% end_if %>
         <% if $media_type == "VIDEO" %>
-            <%-- todo: add template for video --%>
+            <a class="$media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
+                <video muted poster="$thumbnail_url" width="100%" autoplay loop playsinline>
+                    <source src="$media_url" type="video/mp4">
+                </video>
+                <figcaption>
+                    {$Up.Up.caption}
+                    <span class="icon">i</span>
+                </figcaption>
+            </a>
         <% end_if %>
     <% end_loop %>
     </div>
