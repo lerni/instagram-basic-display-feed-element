@@ -111,12 +111,6 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         if (Config::inst()->exists(InstaAuthController::class, 'credentials')) {
             $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
         }
-        if (!array_key_exists('appId', $instacredentials)) {
-            $fields->push(LiteralField::create('no-appId', '<p style="color: red"><strong>appId isn\'t configured!</strong></p>'));
-        }
-        if (!array_key_exists('appSecret', $instacredentials)) {
-            $fields->push(LiteralField::create('no-appSecret', '<p style="color: red"><strong>appSecret isn\'t configured!</strong></p>'));
-        }
 
         $redirectUri = InstaAuthController::getAuthControllerRoute();
         $instagram = new InstagramBasicDisplay([
@@ -145,12 +139,14 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                 if ($latestAuthObj->LastEdited < $agoHard) {
                     Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
                     // user_error('Instagram token expired!', E_USER_NOTICE);
-                } elseif ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
+                } elseif ($LongLivedToken = $instagram->refreshToken($latestAuthObj->LongLivedToken, true)) {
+                // } elseif ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
                     $latestAuthObj->LongLivedToken = $LongLivedToken;
                     $latestAuthObj->write();
                 }
+            } else {
+                $LongLivedToken = $latestAuthObj->LongLivedToken;
             }
-            $LongLivedToken = $latestAuthObj->LongLivedToken;
             return $LongLivedToken;
         }
     }
