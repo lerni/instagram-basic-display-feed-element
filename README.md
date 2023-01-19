@@ -1,7 +1,7 @@
 # Silverstripe instagram-basic-display-feed-element
 Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php) and caches the api-response for performance reasons. Since different scrappers led to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml` and the rotating token is stored in DB. The API is read-only for "public" data anyway.
 
-Note: This module utilizes the (Instagram **Basic** Display API](Instagram Basic Display API).
+Note: This module utilizes the [Instagram **Basic** Display API](Instagram Basic Display API).
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE.md)
 
