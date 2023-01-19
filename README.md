@@ -1,6 +1,8 @@
 # Silverstripe instagram-basic-display-feed-element
 Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php) and caches the api-response for performance reasons. Since different scrappers led to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml` and the rotating token is stored in DB. The API is read-only for "public" data anyway.
 
+Note: This module utilizes the (Instagram **Basic** Display API](Instagram Basic Display API).
+
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE.md)
 
 ## Installation
@@ -16,7 +18,7 @@ composer require lerni/instagram-basic-display-feed-element
 * espresso-dev/instagram-basic-display-php 1.x
 
 # Configuration
-You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret` [Instagram not FB](https://stackoverflow.com/questions/60258144/invalid-platform-app-error-using-instagram-basic-display-api). `redirectUri` 'll be `DYNAMICALLY-SET-HOST.TLD/_instaauth/` but you can also set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one in the setting-tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
+You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret` ([Instagram not FB](https://stackoverflow.com/questions/60258144/invalid-platform-app-error-using-instagram-basic-display-api)). `redirectUri` 'll be `DYNAMICALLY-SET-HOST.TLD/_instaauth/` but you can also set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one in the setting-tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
 
 1. Install the module
 2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `.../_instaauth/` as redirectUri
@@ -51,6 +53,7 @@ $white: #fff;
 		display: block;
 		width: calc(#{math.div(100,4)}% - 2px);
 		padding: 0 0 calc(#{math.div(100,4)}% - 2px) 0;
+        aspect-ratio: 1 / 1;
 		@include breakpoint($Lneg) {
 			width: calc(#{math.div(100,2)}% - 2px);
 			padding: 0 0 calc(#{math.div(100,2)}% - 2px) 0;

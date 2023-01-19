@@ -42,7 +42,7 @@
                         <source src="$media_url" type="video/mp4">
                     </video>
                     <figcaption>
-                        {$Up.Up.caption}
+                        {$caption}
                         <span data-feather="instagram"></span>
                     </figcaption>
                 <figure >
