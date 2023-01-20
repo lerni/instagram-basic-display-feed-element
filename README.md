@@ -53,7 +53,7 @@ $white: #fff;
 		display: block;
 		width: calc(#{math.div(100,4)}% - 2px);
 		padding: 0 0 calc(#{math.div(100,4)}% - 2px) 0;
-        aspect-ratio: 1 / 1;
+		aspect-ratio: 1 / 1;
 		@include breakpoint($Lneg) {
 			width: calc(#{math.div(100,2)}% - 2px);
 			padding: 0 0 calc(#{math.div(100,2)}% - 2px) 0;

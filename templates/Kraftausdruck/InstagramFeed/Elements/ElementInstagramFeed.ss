@@ -45,7 +45,7 @@
                         {$caption}
                         <span data-feather="instagram"></span>
                     </figcaption>
-                <figure >
+                </figure >
             </a>
         <% end_if %>
     <% end_loop %>
