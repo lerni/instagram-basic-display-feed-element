@@ -1,5 +1,5 @@
 # Silverstripe instagram-basic-display-feed-element
-Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php) and caches the api-response for performance reasons. Since different scrappers led to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml` and the rotating token is stored in DB. The API is read-only for "public" data anyway.
+Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php) and caches api-response for performance reasons. Since different scrapers led to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml` and the rotating token is stored in DB. The API is read-only for "public" data anyway.
 
 Note: This module utilizes the [Instagram **Basic** Display API](https://developers.facebook.com/docs/instagram-basic-display-api/).
 
@@ -13,7 +13,7 @@ composer require lerni/instagram-basic-display-feed-element
 * Run a `dev/build?flush`
 
 # Requirements
-* Silverstripe 4.x
+* Silverstripe 4.x & 5.x
 * dnadesign/silverstripe-elemental
 * espresso-dev/instagram-basic-display-php 1.x
 
@@ -21,11 +21,11 @@ composer require lerni/instagram-basic-display-feed-element
 You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret` ([Instagram not FB](https://stackoverflow.com/questions/60258144/invalid-platform-app-error-using-instagram-basic-display-api)). `redirectUri` 'll be `DYNAMICALLY-SET-HOST.TLD/_instaauth/` but you can also set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one in the setting-tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
 
 1. Install the module
-2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `.../_instaauth/` as redirectUri
-3. Add `appId` & `appSecret` in yml-config like bellow & `?flush`
+2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `https://DOMAIN.TLD/_instaauth/` as redirectUri
+3. Add `appId` & `appSecret` in yml-config like below & `?flush`
 4. Create an Instagram Feed Element & click on the Link in the setting-tab to authenticate
 5. reload CMS to see the generated token
-6. Use it. Token 'll be updated if older than 30 days on request basis. This means if a token is older than 30 day and from there on no request is made (element never shown to any visitor), the token invalidates and a waring is thrown. To fix this you'll need to delete all tokens and regenerate one with the link provided in the CMS.
+6. That's it. Token 'll be updated if older than 30 days on request basis. This means, if a token is older than 30 day and from there on no request is made (element never shown to any visitor), the token invalidates and a warning is thrown. To fix this you'll need to delete all tokens and regenerate one with the link provided in CMS.
 
 ```yaml
 Kraftausdruck\InstagramFeed\Control\InstaAuthController:
@@ -35,7 +35,7 @@ Kraftausdruck\InstagramFeed\Control\InstaAuthController:
     # redirectUri: 'https://example.tld/_instaauth/'
 ```
 # Styling
-Example SCSS customisation. [Feather Icons](https://feathericons.com/) are suggested - you need to load those your self.
+Example SCSS customisation. [Feather Icons](https://feathericons.com/) are suggested - you need to load those yourself.
 ```scss
 $lh: 1.41;
 $white: #fff;
@@ -124,8 +124,8 @@ $white: #fff;
 }
 ```
 # Troubleshooting
-If things go wrong you may wanna check [Facebooks Plattformstatus](https://developers.facebook.com/status/dashboard/).
+If things go wrong you may want to check [Facebooks Plattformstatus](https://developers.facebook.com/status/dashboard/).
 
 # Todo
 * how is pagination supposed to work?
-* may just an extension not an element?
+* maybe just an extension not an element?

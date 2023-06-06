@@ -153,11 +153,10 @@ class ElementInstagramFeed extends BaseElement implements Flushable
 
     public function getInstagramFeed()
     {
-        $cacheKey = implode([$this->ID, $this->LastEdited, InstaAuthObj::get()->max('LastEdited')]);
+        $cacheKey = crc32(implode([$this->ID, $this->LastEdited, InstaAuthObj::get()->max('LastEdited')]));
         $this->cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
-        $this->cache->set('InstagramCacheKey', $cacheKey);
 
-        if (!$this->cache->has('InstagramCache')) {
+        if (!$this->cache->has($cacheKey)) {
 
             $instagram = $this->InstagramInstance();
 
@@ -198,12 +197,12 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                 } else {
                     Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . json_encode($media));
                     // user_error('unexpected Instagram-API response!', E_USER_NOTICE);
-                    $this->cache->set('InstagramCacheKey', $this->errorCacheKey());
+                    $cacheKey = $this->errorCacheKey();
                 }
-                $this->cache->set('InstagramCache', $r);
+                $this->cache->set($cacheKey, $r);
             }
         } else {
-            $r = $this->cache->get('InstagramCache');
+            $r = $this->cache->get($cacheKey);
         }
         return $r;
     }

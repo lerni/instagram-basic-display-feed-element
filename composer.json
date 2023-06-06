@@ -10,7 +10,7 @@
   ],
   "homepage": "https://github.com/lerni/instagram-basic-display-feed-element",
   "require": {
-    "silverstripe/framework": "^4.0",
+    "silverstripe/framework": "^4.0 || ^5.0",
     "espresso-dev/instagram-basic-display-php": "^1.0"
   },
   "extra": {
