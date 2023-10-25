@@ -6,7 +6,7 @@ Note: This module utilizes the [Instagram **Basic** Display API](https://develop
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE.md)
 
 ![Instagram feed module screenshot](docs/images/lippundleuthold.webp)
-Example in action from <a href="https://lippundleuthold.ch/shows#instafeed" target="_blank">Lipp&Leuthold</a>
+Example in action from <a href="https://lippundleuthold.ch/info/#instagram" target="_blank">Lipp&Leuthold</a>
 
 
 # Installation
@@ -45,8 +45,8 @@ $lh: 1.41;
 $white: #fff;
 
 .instafeed {
-    display: flex;
-    flex-wrap: wrap;
+	display: flex;
+	flex-wrap: wrap;
 	margin-left: -1px;
 	margin-right: -1px;
 	width: calc(100% + 2px);
@@ -132,6 +132,3 @@ $white: #fff;
 # Troubleshooting
 If things go wrong, you may want to check [Facebooks Plattform Status](https://developers.facebook.com/status/dashboard/).
 
-# Todo
-* how is pagination supposed to work?
-* maybe just an extension not an element?

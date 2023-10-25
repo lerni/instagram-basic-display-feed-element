@@ -64,7 +64,6 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         if ($TextEditor = $fields->dataFieldByName('HTML')) {
             $TextEditor->setTitle(_t(self::class . '.HTMLFIELDTITLE', 'Text'));
             $TextEditor->setRows(16);
-            $TextEditor->setAttribute('data-mce-body-class', $this->getSimpleClassName());
         }
 
         if ($LimitField = $fields->dataFieldByName('Limit')) {
