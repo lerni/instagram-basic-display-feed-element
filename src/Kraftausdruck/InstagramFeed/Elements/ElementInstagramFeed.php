@@ -159,8 +159,6 @@ class ElementInstagramFeed extends BaseElement implements Flushable
 
             $instagram = $this->InstagramInstance();
 
-            $this->cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
-
             $r = ArrayData::create();
 
             if ($LatestToken = $this->getLatestToken()) {
