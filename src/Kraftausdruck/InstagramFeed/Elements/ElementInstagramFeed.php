@@ -20,7 +20,6 @@ use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
 use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
 use Kraftausdruck\InstagramFeed\Control\InstaAuthController;
-use SilverStripe\ORM\DataObject;
 
 class ElementInstagramFeed extends BaseElement implements Flushable
 {
@@ -169,7 +168,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                 if (property_exists($media, 'data')) {
                     foreach ($media->data as $mediaItem) {
 
-                        $mediaObjt = DataObject::create();
+                        $mediaObjt = ArrayData::create();
 
                         foreach ($mediaItem as $key => $value) {
                             if (is_string($key) && is_string($value)) {

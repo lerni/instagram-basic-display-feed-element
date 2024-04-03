@@ -17,7 +17,7 @@ composer require lerni/instagram-basic-display-feed-element
 * Run a `dev/build?flush`
 
 ## Requirements
-* Silverstripe 4.x & 5.x
+* Silverstripe 5.x
 * dnadesign/silverstripe-elemental
 * espresso-dev/instagram-basic-display-php 1.x
 
@@ -43,7 +43,6 @@ Example SCSS square-styles with text as hover overlay. [Feather Icons](https://f
 ```scss
 $lh: 1.41;
 $white: #fff;
-
 .instafeed {
 	display: flex;
 	flex-wrap: wrap;
@@ -52,28 +51,19 @@ $white: #fff;
 	width: calc(100% + 2px);
 	a {
 		outline: none;
-		float: left;
 		overflow: hidden;
 		position: relative;
-		margin: 0 2px 2px 0;
 		display: block;
-		width: calc(#{math.div(100,4)}% - 2px);
-		padding: 0 0 calc(#{math.div(100,4)}% - 2px) 0;
-		aspect-ratio: 1 / 1;
+		width: auto;
+		height: 500px;
 		@include breakpoint($Lneg) {
-			width: calc(#{math.div(100,2)}% - 2px);
-			padding: 0 0 calc(#{math.div(100,2)}% - 2px) 0;
+			height: 400px;
 		}
 		@include breakpoint($Sneg) {
-			width: calc(#{math.div(100,1)}% - 2px);
-			padding: 0 0 calc(#{math.div(100,1)}% - 2px) 0;
+			height: 300px;
 		}
 		figure {
-			position: absolute;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
+			height: 100%;
 			margin: 0;
 			img {
 				object-fit: cover;
@@ -97,32 +87,25 @@ $white: #fff;
 				display: flex;
 				flex-direction: column;
 				background-color: rgba(0,0,0,.8);
-				.feather-instagram {
-					margin: auto auto 0;
-					color: $white;
+				span[data-feather="instagram"] {
 					transition: transform 120ms linear;
-					transition-delay: 80ms;
-					align-self: center;
 					transform: scale(.4);
-					flex-shrink: 0;
+					width: 1.4em;
+					height: 1.4em;
+					background-image: svg-load('../images/svg/instagram.svg', stroke=#{$white});
+					margin: auto auto 0 auto;
 				}
 			}
 			&:hover {
 				figcaption {
 					opacity: 1;
-					.feather-instagram {
+					span[data-feather="instagram"] {
 						transform: scale(1);
 					}
 				}
 			}
 		}
 		video {
-			position: absolute;
-			top: 0;
-			right: 0;
-			bottom: 0;
-			left: 0;
-			object-fit: cover;
 			height: 100%;
 			width: 100%;
 		}
