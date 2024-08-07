@@ -2,13 +2,14 @@
 
 namespace Kraftausdruck\InstagramFeed\Control;
 
-use SilverStripe\Control\Controller;
-use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
-use SilverStripe\Control\HTTPRequest;
-use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
 use SilverStripe\Control\Director;
+use SilverStripe\Core\Environment;
+use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Config;
+use SilverStripe\Control\HTTPRequest;
 use SilverStripe\ORM\FieldType\DBHTMLText;
+use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
+use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
 
 class InstaAuthController extends Controller
 {
@@ -26,9 +27,12 @@ class InstaAuthController extends Controller
             $redirectUri = $this->getAuthControllerRoute();
 
             $instacredentials = $this->config()->get('credentials');
+            $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instacredentials['appId'];
+            $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instacredentials['appSecret'];
+
             $instagram = new InstagramBasicDisplay([
-                'appId' => $instacredentials['appId'],
-                'appSecret' => $instacredentials['appSecret'],
+                'appId' => $appId,
+                'appSecret' => $appSecret,
                 'redirectUri' => $redirectUri
             ]);
 
@@ -55,7 +59,7 @@ class InstaAuthController extends Controller
         // get redirectUri from config or generate dynamically with absoluteURL
         $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
 
-        if (array_key_exists('redirectUri', $instacredentials)) {
+        if ($instacredentials && array_key_exists('redirectUri', $instacredentials)) {
             $url = $instacredentials['redirectUri'];
         } else {
             $url = Controller::join_links(Director::absoluteBaseURL(), '_instaauth/');

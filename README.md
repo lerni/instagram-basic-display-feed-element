@@ -1,5 +1,5 @@
 # Silverstripe instagram-basic-display-feed-element
-Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php) and caches the API-response for performance reasons. Since different scrapers led to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml` and the rotating token is stored in DB. The API is read-only for "public" data anyway.
+Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php) and caches the API-response for performance reasons. Since different scrapers lead to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml`-config or `.env`, the rotating token in DB. The API is read-only for "public" data anyway.
 
 Note: This module utilizes the [Instagram **Basic** Display API](https://developers.facebook.com/docs/instagram-basic-display-api/).
 
@@ -26,8 +26,8 @@ You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-b
 
 1. Install the module
 2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `https://DOMAIN.TLD/_instaauth/` as redirectUri
-3. Add `appId` & `appSecret` in yml-config like below & `?flush`
-4. Create an Instagram Feed Element & click on the Link in the setting-tab to authenticate
+3. Add `appId` & `appSecret` in yml-config or `.env` like below & `?flush`
+4. Create an Instagram Feed Element & click on the link in the setting-tab to authenticate
 5. Reload CMS to see the generated token
 6. That's it. Token 'll be updated if older than 30 days on request basis. This means, if a token is older than 30 days and from there on no request is made (element never shown to any visitor), the token invalidates and a warning is thrown. To "fix" this, you'll need to delete all tokens and regenerate one with the link provided in CMS.
 
@@ -38,6 +38,11 @@ Kraftausdruck\InstagramFeed\Control\InstaAuthController:
     appSecret: '7e29795bva6d352e3286769ff3a3a836'
     # redirectUri: 'https://example.tld/_instaauth/'
 ```
+```.env
+KRAFT_INSTAFEED_APP_ID='2598599940246020'
+KRAFT_INSTAFEED_APP_SECRET='7e29795bva6d352e3286769ff3a3a836'
+```
+
 # Styling
 Example SCSS square-styles with text as hover overlay. [Feather Icons](https://feathericons.com/) are suggested - you need to load those yourself.
 ```scss
@@ -113,5 +118,5 @@ $white: #fff;
 }
 ```
 # Troubleshooting
-If things go wrong, you may want to check [Facebooks Plattform Status](https://developers.facebook.com/status/dashboard/).
+If things go wrong, you may want to check [Facebook Platform Status](https://metastatus.com/).
 

@@ -7,6 +7,7 @@ use SilverStripe\ORM\ArrayList;
 use SilverStripe\Core\Flushable;
 use SilverStripe\View\ArrayData;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Core\Environment;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Forms\HeaderField;
 use SilverStripe\Core\Config\Config;
@@ -110,10 +111,12 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
         }
 
+        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instacredentials['appId'];
+        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instacredentials['appSecret'];
         $redirectUri = InstaAuthController::getAuthControllerRoute();
         $instagram = new InstagramBasicDisplay([
-            'appId' => $instacredentials['appId'],
-            'appSecret' => $instacredentials['appSecret'],
+            'appId' => $appId,
+            'appSecret' => $appSecret,
             'redirectUri' => $redirectUri
         ]);
         return $instagram;
