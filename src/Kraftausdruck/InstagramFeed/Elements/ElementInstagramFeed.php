@@ -2,6 +2,7 @@
 
 namespace Kraftausdruck\InstagramFeed\Elements;
 
+use Exception;
 use Psr\Log\LoggerInterface;
 use SilverStripe\ORM\ArrayList;
 use SilverStripe\Core\Flushable;
@@ -39,6 +40,8 @@ class ElementInstagramFeed extends BaseElement implements Flushable
     private static $title = 'Instagram Feed Element';
 
     private static $icon = 'font-icon-block-instagram';
+
+    private static $graphApiBaseUrl = 'https://graph.instagram.com/';
 
     private static $defaults = [
         'Limit' => 4
@@ -157,20 +160,29 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         $cacheKey = crc32(implode([$this->ID, $this->LastEdited, InstaAuthObj::get()->max('LastEdited')]));
         $this->cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
 
+        $r = ArrayData::create();
+
         if (!$this->cache->has($cacheKey)) {
 
-            $instagram = $this->InstagramInstance();
+            $pro_id = Environment::getEnv('KRAFT_INSTAFEED_PRO_ID');
+            $pro_token = Environment::getEnv('KRAFT_INSTAFEED_PRO_TOKEN');
 
-            $r = ArrayData::create();
+            // pro account
+            if ($pro_id && $pro_token) {
 
-            if ($LatestToken = $this->getLatestToken()) {
-                $instagram->setAccessToken($LatestToken);
-                $media = $instagram->getUserMedia($id = 'me', $this->Limit);
+                // Fetch media data
+                $mediaParams = [
+                    'fields' => 'id,caption,media_type,media_url,permalink,thumbnail_url,timestamp',
+                    'access_token' => $pro_token,
+                    'limit' => $this->Limit
+                ];
+
+                $mediaData = $this->fetchInstagramData(self::$graphApiBaseUrl . $pro_id . '/media', $mediaParams);
 
                 $mediaArrayList = ArrayList::create();
-                if (property_exists($media, 'data')) {
-                    foreach ($media->data as $mediaItem) {
 
+                if (isset($mediaData['data'])) {
+                    foreach ($mediaData['data'] as $mediaItem) {
                         $mediaObjt = ArrayData::create();
 
                         foreach ($mediaItem as $key => $value) {
@@ -179,31 +191,87 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                             }
                         }
 
-                        if (property_exists($mediaItem, 'children') && count($mediaItem->children->data)) {
-                            $mediaChildrenArray = json_decode(json_encode($mediaItem->children->data), true); // object2array through json
-                            $mediaChildrenArrayList = ArrayList::create($mediaChildrenArray);
+                        // Handle children (carousel items) if present
+                        if (!empty($mediaItem['children']['data'])) {
+                            $mediaChildrenArrayList = ArrayList::create($mediaItem['children']['data']);
                             $mediaObjt->Children = $mediaChildrenArrayList;
                         }
+
                         $mediaArrayList->push($mediaObjt);
                     }
-
-                    $profile = $instagram->getUserProfile();
-                    $profileArray = json_decode(json_encode($profile), true); // object2array through json
-                    $profileArrayData = ArrayData::create($profileArray);
-
-                    $r->Media = $mediaArrayList;
-                    $r->Profile = $profileArrayData;
-                } else {
-                    Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . json_encode($media));
-                    // user_error('unexpected Instagram-API response!', E_USER_NOTICE);
-                    $cacheKey = $this->errorCacheKey();
                 }
-                $this->cache->set($cacheKey, $r);
+
+                // Fetch profile data
+                $profileParams = [
+                    'fields' => 'id,username,account_type,media_count',
+                    'access_token' => $pro_token
+                ];
+
+                $profileData = $this->fetchInstagramData(self::$graphApiBaseUrl . 'me', $profileParams);
+
+                $profileArrayData = ArrayData::create($profileData);
+
+            // basic account
+            } else {
+
+                $instagram = $this->InstagramInstance();
+
+                if ($LatestToken = $this->getLatestToken()) {
+                    $instagram->setAccessToken($LatestToken);
+                    $media = $instagram->getUserMedia($id = 'me', $this->Limit);
+
+                    $mediaArrayList = ArrayList::create();
+                    if (property_exists($media, 'data')) {
+                        foreach ($media->data as $mediaItem) {
+
+                            $mediaObjt = ArrayData::create();
+
+                            foreach ($mediaItem as $key => $value) {
+                                if (is_string($key) && is_string($value)) {
+                                    $mediaObjt->{$key} = $value;
+                                }
+                            }
+
+                            if (property_exists($mediaItem, 'children') && count($mediaItem->children->data)) {
+                                $mediaChildrenArray = json_decode(json_encode($mediaItem->children->data), true); // object2array through json
+                                $mediaChildrenArrayList = ArrayList::create($mediaChildrenArray);
+                                $mediaObjt->Children = $mediaChildrenArrayList;
+                            }
+                            $mediaArrayList->push($mediaObjt);
+                        }
+
+                        $profile = $instagram->getUserProfile();
+                        $profileArray = json_decode(json_encode($profile), true); // object2array through json
+                        $profileArrayData = ArrayData::create($profileArray);
+                    } else {
+                        Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . json_encode($media));
+                        // user_error('unexpected Instagram-API response!', E_USER_NOTICE);
+                        $cacheKey = $this->errorCacheKey();
+                    }
+                }
             }
+            $r->Media = $mediaArrayList;
+            $r->Profile = $profileArrayData;
+            $this->cache->set($cacheKey, $r);
         } else {
             $r = $this->cache->get($cacheKey);
         }
+
         return $r;
+    }
+
+    // fetching Instagram Graph API
+    function fetchInstagramData($endpoint, $params) {
+        $query = http_build_query($params);
+        $url = $endpoint . '?' . $query;
+
+        try {
+            $response = file_get_contents($url);
+            return json_decode($response, true);
+        } catch (Exception $e) {
+            Injector::inst()->get(LoggerInterface::class)->info('Error fetching data from Instagram Graph API: ' . $e->getMessage() . ' Endpoint: ' . json_encode($endpoint));
+            return null;
+        }
     }
 
     public static function flush()
