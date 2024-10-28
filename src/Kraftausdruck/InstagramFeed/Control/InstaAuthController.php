@@ -4,12 +4,12 @@ namespace Kraftausdruck\InstagramFeed\Control;
 
 use SilverStripe\Control\Director;
 use SilverStripe\Core\Environment;
+use EspressoDev\Instagram\Instagram;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Control\HTTPRequest;
 use SilverStripe\ORM\FieldType\DBHTMLText;
 use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
-use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
 
 class InstaAuthController extends Controller
 {
@@ -30,7 +30,7 @@ class InstaAuthController extends Controller
             $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instacredentials['appId'];
             $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instacredentials['appSecret'];
 
-            $instagram = new InstagramBasicDisplay([
+            $instagram = new Instagram([
                 'appId' => $appId,
                 'appSecret' => $appSecret,
                 'redirectUri' => $redirectUri

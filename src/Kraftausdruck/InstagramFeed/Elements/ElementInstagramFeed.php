@@ -11,6 +11,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\Core\Environment;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Forms\HeaderField;
+use EspressoDev\Instagram\Instagram;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Core\Injector\Injector;
@@ -20,7 +21,6 @@ use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
 use SilverStripe\Forms\GridField\GridFieldConfig_Base;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
-use EspressoDev\InstagramBasicDisplay\InstagramBasicDisplay;
 use Kraftausdruck\InstagramFeed\Control\InstaAuthController;
 
 class ElementInstagramFeed extends BaseElement implements Flushable
@@ -54,13 +54,23 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         $fields = parent::getCMSFields();
 
         $instacredentials = [];
+
         if (Config::inst()->exists(InstaAuthController::class, 'credentials')) {
-            $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+            $instaCredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
         }
-        if (!array_key_exists('appId', $instacredentials)) {
+
+        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID')
+            ?? ($instaCredentials['appId'] ?? null);
+
+        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET')
+            ?? ($instaCredentials['appSecret'] ?? null);
+
+
+        if (!$appId) {
             $fields->push(LiteralField::create('no-appId', '<p style="color: red"><strong>appId isn\'t configured!</strong></p>'));
         }
-        if (!array_key_exists('appSecret', $instacredentials)) {
+
+        if (!$appSecret) {
             $fields->push(LiteralField::create('no-appSecret', '<p style="color: red"><strong>appSecret isn\'t configured!</strong></p>'));
         }
 
@@ -117,7 +127,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instacredentials['appId'];
         $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instacredentials['appSecret'];
         $redirectUri = InstaAuthController::getAuthControllerRoute();
-        $instagram = new InstagramBasicDisplay([
+        $instagram = new Instagram([
             'appId' => $appId,
             'appSecret' => $appSecret,
             'redirectUri' => $redirectUri
@@ -142,9 +152,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                 $instagram = $this->InstagramInstance();
                 if ($latestAuthObj->LastEdited < $agoHard) {
                     Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
-                    // user_error('Instagram token expired!', E_USER_NOTICE);
                 } elseif ($LongLivedToken = $instagram->refreshToken($latestAuthObj->LongLivedToken, true)) {
-                // } elseif ($LongLivedToken = $instagram->getLongLivedToken($latestAuthObj->LongLivedToken, true)) {
                     $latestAuthObj->LongLivedToken = $LongLivedToken;
                     $latestAuthObj->write();
                 }
@@ -245,7 +253,6 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                         $profileArrayData = ArrayData::create($profileArray);
                     } else {
                         Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . json_encode($media));
-                        // user_error('unexpected Instagram-API response!', E_USER_NOTICE);
                         $cacheKey = $this->errorCacheKey();
                     }
                 }
