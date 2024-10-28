@@ -40,7 +40,7 @@ class InstaAuthController extends Controller
             $LongLivedToken = $instagram->getLongLivedToken($token->access_token, true);
 
             if ($LongLivedToken) {
-                $AuthObj->LongLivedToken = $LongLivedToken;
+                $AuthObj->LongLivedToken = $LongLivedToken->access_token;
                 $AuthObj->user_id = $token->user_id;
                 $AuthObj->write();
                 $obj = DBHTMLText::create();

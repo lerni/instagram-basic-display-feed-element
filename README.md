@@ -1,7 +1,7 @@
 # Silverstripe instagram-basic-display-feed-element
-Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-basic-display-php](https://github.com/espresso-dev/instagram-basic-display-php) and caches the API-response for performance reasons. Since different scrapers lead to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml`-config or `.env`, the rotating token in DB. The API is read-only for "public" data anyway.
+Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-php](https://github.com/espresso-dev/instagram-php) and caches the API-response for performance reasons. Since different scrapers lead to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml`-config or `.env`, the rotating token in DB. The API is read-only for "public" data anyway.
 
-Note: This module utilizes the [Instagram **Basic** Display API](https://developers.facebook.com/docs/instagram-basic-display-api/).
+Note: https://github.com/espresso-dev/instagram-php is used and not https://github.com/espresso-dev/instagram-basic-display-php anymore, still `instagram_business_basic` scope is in use.
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE.md)
 
@@ -19,7 +19,7 @@ composer require lerni/instagram-basic-display-feed-element
 ## Requirements
 * Silverstripe 5.x
 * dnadesign/silverstripe-elemental
-* espresso-dev/instagram-basic-display-php 1.x
+* espresso-dev/instagram-php 1.x
 
 ## Configuration
 You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret` ([Instagram not FB](https://stackoverflow.com/questions/60258144/invalid-platform-app-error-using-instagram-basic-display-api)). `redirectUri` will be `DYNAMICALLY-SET-HOST.TLD/_instaauth/` but you can also set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one in the setting-tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
