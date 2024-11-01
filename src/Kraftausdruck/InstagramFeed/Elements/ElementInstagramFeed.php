@@ -56,20 +56,28 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         if (Config::inst()->exists(InstaAuthController::class, 'credentials')) {
             $instaCredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
         }
+        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: ($instaCredentials['appId'] ?? null);
+        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET')?: ($instaCredentials['appSecret'] ?? null);
 
-        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID')
-            ?? ($instaCredentials['appId'] ?? null);
-
-        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET')
-            ?? ($instaCredentials['appSecret'] ?? null);
-
-
+        $missing = [];
         if (!$appId) {
-            $fields->push(LiteralField::create('no-appId', '<p style="color: red"><strong>appId isn\'t configured!</strong></p>'));
+            $missing[] = 'appId | KRAFT_INSTAFEED_APP_ID';
         }
-
         if (!$appSecret) {
-            $fields->push(LiteralField::create('no-appSecret', '<p style="color: red"><strong>appSecret isn\'t configured!</strong></p>'));
+            $missing[] = 'appSecret | KRAFT_INSTAFEED_APP_SECRET';
+        }
+        if (count($missing) ) {
+            $missing = implode(' & ', $missing);
+            $message = _t(__CLASS__ . '.APIValuesMissing', 'API: {missing} are missing.', ['missing' => $missing]);
+            $fields->unshift(
+                LiteralField::create(
+                    'HeroNeeded',
+                    sprintf(
+                        '<p class="alert alert-warning">%s</p>',
+                        $message
+                    )
+                )
+            );
         }
 
         if ($TextEditor = $fields->dataFieldByName('HTML')) {
@@ -157,7 +165,6 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             } else {
                 $LongLivedToken = $latestAuthObj->LongLivedToken;
             }
-            // $LongLivedToken = "AQBiLJS4V0XPcG6_3dBBnWbtSmapVQXs1dmqlOwtnTck7mvvArQrGutQZriGZnVcx7qqcsEOAOfg9jKVvZdVYhjkbwZD1Mbdx5xBLmDcqMuM-xV4sMGHKtsDGTDiPUhD5SvBVxqBohKJ1FZYHXUh7tnsxyUYEWbhpA-bTCAcnxvGk1upUbc_GIiE14Ub7jzf4g3fxuteC6GmYGXzXCRReDKeM9KQsrt-HIJ9aySd_HKEZg#_";
             return $LongLivedToken;
         }
     }
