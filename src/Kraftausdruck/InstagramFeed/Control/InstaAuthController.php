@@ -24,11 +24,11 @@ class InstaAuthController extends Controller
 
         // if ($request->getVar('code') && $mainDomainName == 'instagram.com') {
 
-            $instacredentials = $this->config()->get('credentials');
+            $instaCredentials = $this->config()->get('credentials');
 
             // Handle Facebook webhook verification
             if ($request->getVar('hub_mode') === 'subscribe') {
-                $verificationToken = Environment::getEnv('KRAFT_INSTAFEED_VERIFICATION_TOKEN') ?: $instacredentials['verificationToken'];
+                $verificationToken = Environment::getEnv('KRAFT_INSTAFEED_VERIFICATION_TOKEN') ?: $instaCredentials['verificationToken'];
                 if ($request->getVar('hub_verify_token') === $verificationToken) {
                     return $request->getVar('hub_challenge');
                 } else {
@@ -39,8 +39,8 @@ class InstaAuthController extends Controller
             $AuthObj = InstaAuthObj::create();
             $redirectUri = $this->getAuthControllerRoute();
 
-            $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instacredentials['appId'];
-            $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instacredentials['appSecret'];
+            $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instaCredentials['appId'];
+            $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instaCredentials['appSecret'];
 
             $instagram = new Instagram([
                 'appId' => $appId,
@@ -56,7 +56,7 @@ class InstaAuthController extends Controller
                 $AuthObj->user_id = $token->user_id;
                 $AuthObj->write();
                 $obj = DBHTMLText::create();
-                $obj->setValue(_t(self::class . '.CREATEDTOKEN', 'received token!<br/><a href="/home">/home</a>'));
+                $obj->setValue(_t(__CLASS__ . '.CREATEDTOKEN', 'received token!<br/><a href="/home">/home</a>'));
                 return [
                     'Content' => $obj
                 ];
@@ -66,13 +66,13 @@ class InstaAuthController extends Controller
         // }
     }
 
-    public static function getAuthControllerRoute()
+    public static function getAuthControllerRoute(): string
     {
         // get redirectUri from config or generate dynamically with absoluteURL
-        $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+        $instaCredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
 
-        if ($instacredentials && array_key_exists('redirectUri', $instacredentials)) {
-            $url = $instacredentials['redirectUri'];
+        if ($instaCredentials && array_key_exists('redirectUri', $instaCredentials)) {
+            $url = $instaCredentials['redirectUri'];
         } else {
             $url = Controller::join_links(Director::absoluteBaseURL(), '_instaauth');
         }

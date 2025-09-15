@@ -52,7 +52,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
     {
         $fields = parent::getCMSFields();
 
-        $instacredentials = [];
+        $instaCredentials = [];
 
         if (Config::inst()->exists(InstaAuthController::class, 'credentials')) {
             $instaCredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
@@ -82,13 +82,13 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         }
 
         if ($TextEditor = $fields->dataFieldByName('HTML')) {
-            $TextEditor->setTitle(_t(self::class . '.HTMLFIELDTITLE', 'Text'));
+            $TextEditor->setTitle(_t(__CLASS__ . '.HTMLFIELDTITLE', 'Text'));
             $TextEditor->setRows(16);
         }
 
         if ($LimitField = $fields->dataFieldByName('Limit')) {
-            $LimitField->setTitle(_t(self::class . '.LIMITFIELDTITLE', 'Limit'));
-            $LimitField->setDescription(_t(self::class . '.LIMITFIELDDESCRIPTION', '0 = all | default 4'));
+            $LimitField->setTitle(_t(__CLASS__ . '.LIMITFIELDTITLE', 'Limit'));
+            $LimitField->setDescription(_t(__CLASS__ . '.LIMITFIELDDESCRIPTION', '0 = all | default 4'));
         }
 
         $verificationToken = Environment::getEnv('KRAFT_INSTAFEED_VERIFICATION_TOKEN') ?: ($instaCredentials['verificationToken'] ?? null);
@@ -98,29 +98,29 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             $verificationTokenField = TextField::create('verificationTokenTEXT', 'verificationToken', $verificationToken)->setReadonly(true)
         ]);
 
-        $redirectUriField->setDescription(_t(self::class . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
-        $verificationTokenField->setDescription(_t(self::class . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
+        $redirectUriField->setDescription(_t(__CLASS__ . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
+        $verificationTokenField->setDescription(_t(__CLASS__ . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
 
         if (!$this->getLatestToken()) {
             $instagram = $this->InstagramInstance();
 
             $fields->addFieldToTab(
                 'Root.Settings',
-                LiteralField::create('getLoginURL', _t(self::class . '.LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="' . $instagram->getLoginUrl() . '" target="_blank" rel="noopener">' . $this->getLoginURL() . '</a><br/>')
+                LiteralField::create('getLoginURL', _t(__CLASS__ . '.LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="' . $instagram->getLoginUrl() . '" target="_blank" rel="noopener">' . $this->getLoginURL() . '</a><br/>')
             );
         }
 
         // $InstaAuthObjGridFieldConfig = GridFieldConfig_Base::create(20);
         $InstaAuthObjGridFieldConfig = GridFieldConfig_RecordEditor::create();
-        $InstaAuthObjGridFieldConfig->addComponents(
-            new GridFieldDeleteAction()
-        );
-        $gridField = new GridField('InstaAuthObj', _t(self::class . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('LastEdited DESC'), $InstaAuthObjGridFieldConfig);
-        $gridField->setDescription(_t(self::class . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
+        // $InstaAuthObjGridFieldConfig->addComponents(
+        //     new GridFieldDeleteAction()
+        // );
+        $gridField = new GridField('InstaAuthObj', _t(__CLASS__ . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('LastEdited DESC'), $InstaAuthObjGridFieldConfig);
+        $gridField->setDescription(_t(__CLASS__ . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
 
         $InstaAuthObjGridFieldConfig->getComponentByType(GridFieldDataColumns::class)->setDisplayFields([
             'user_id' => 'User ID',
-            'Created' => 'Crated',
+            'Created' => 'Created',
             'LastEdited' => 'Updated',
             'LongLivedToken.LimitCharacters' => '60 days token'
         ]);
@@ -130,15 +130,15 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         return $fields;
     }
 
-    private function InstagramInstance()
+    private function InstagramInstance(): Instagram
     {
-        $instacredentials = [];
+        $instaCredentials = [];
         if (Config::inst()->exists(InstaAuthController::class, 'credentials')) {
-            $instacredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
+            $instaCredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
         }
 
-        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instacredentials['appId'];
-        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instacredentials['appSecret'];
+        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instaCredentials['appId'];
+        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instaCredentials['appSecret'];
         $redirectUri = InstaAuthController::getAuthControllerRoute();
         $instagram = new Instagram([
             'appId' => $appId,
@@ -148,13 +148,13 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         return $instagram;
     }
 
-    public function getLoginURL()
+    public function getLoginURL(): string
     {
         $instagram = $this->InstagramInstance();
         return $instagram->getLoginUrl();
     }
 
-    private function getLatestToken()
+    private function getLatestToken(): ?string
     {
         $latestAuthObj = InstaAuthObj::get()->first();
         $agoSoft = date('Y-m-d H:i:s', strtotime('-30 days'));
@@ -167,10 +167,16 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                 if ($latestAuthObj->LastEdited < $agoHard) {
                     Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
                 } else {
-                    $instagram->setAccessToken($LongLivedToken);
-                    $LongLivedToken = $instagram->refreshLongLivedToken($latestAuthObj->LongLivedToken, true);
-                    $latestAuthObj->LongLivedToken = $LongLivedToken = $LongLivedToken->access_token;
-                    $latestAuthObj->write();
+                    try {
+                        $instagram->setAccessToken($LongLivedToken);
+                        $refreshedToken = $instagram->refreshLongLivedToken($latestAuthObj->LongLivedToken, true);
+                        $latestAuthObj->LongLivedToken = $LongLivedToken = $refreshedToken->access_token;
+                        $latestAuthObj->write();
+                        Injector::inst()->get(LoggerInterface::class)->info('Instagram token refreshed successfully');
+                    } catch (Exception $e) {
+                        Injector::inst()->get(LoggerInterface::class)->error('Failed to refresh Instagram token: ' . $e->getMessage());
+                        return false;
+                    }
                 }
             }
             return $LongLivedToken;
@@ -178,7 +184,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         return false;
     }
 
-    public function getInstagramFeed()
+    public function getInstagramFeed(): ArrayData
     {
         $cacheKey = crc32(implode([$this->ID, $this->LastEdited, InstaAuthObj::get()->max('LastEdited')]));
         $this->cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
@@ -190,39 +196,48 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             $instagram = $this->InstagramInstance();
 
             if ($LatestToken = $this->getLatestToken()) {
-                $instagram->setAccessToken($LatestToken);
-                $media = $instagram->getUserMedia($id = 'me', $this->Limit);
+                try {
+                    $instagram->setAccessToken($LatestToken);
+                    $media = $instagram->getUserMedia($id = 'me', $this->Limit);
 
-                $mediaArrayList = ArrayList::create();
-                if (property_exists($media, 'data')) {
-                    foreach ($media->data as $mediaItem) {
+                    $mediaArrayList = ArrayList::create();
+                    if (property_exists($media, 'data')) {
+                        foreach ($media->data as $mediaItem) {
 
-                        $mediaObjt = ArrayData::create();
+                            $mediaObjt = ArrayData::create();
 
-                        foreach ($mediaItem as $key => $value) {
-                            if (is_string($key) && is_string($value)) {
-                                $mediaObjt->{$key} = $value;
+                            foreach ($mediaItem as $key => $value) {
+                                if (is_string($key) && is_string($value)) {
+                                    $mediaObjt->{$key} = $value;
+                                }
                             }
+
+                            if (property_exists($mediaItem, 'children') && count($mediaItem->children->data)) {
+                                $mediaChildrenArray = json_decode(json_encode($mediaItem->children->data), true); // object2array through json
+                                $mediaChildrenArrayList = ArrayList::create($mediaChildrenArray);
+                                $mediaObjt->Children = $mediaChildrenArrayList;
+                            }
+                            $mediaArrayList->push($mediaObjt);
                         }
 
-                        if (property_exists($mediaItem, 'children') && count($mediaItem->children->data)) {
-                            $mediaChildrenArray = json_decode(json_encode($mediaItem->children->data), true); // object2array through json
-                            $mediaChildrenArrayList = ArrayList::create($mediaChildrenArray);
-                            $mediaObjt->Children = $mediaChildrenArrayList;
-                        }
-                        $mediaArrayList->push($mediaObjt);
+                        $profile = $instagram->getUserProfile();
+                        $profileArray = json_decode(json_encode($profile), true); // object2array through json
+                        $profileArrayData = ArrayData::create($profileArray);
+
+                        $r->Media = $mediaArrayList;
+                        $r->Profile = $profileArrayData;
+                    } else {
+                        Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . json_encode($media));
+                        $cacheKey = $this->errorCacheKey();
                     }
-
-                    $profile = $instagram->getUserProfile();
-                    $profileArray = json_decode(json_encode($profile), true); // object2array through json
-                    $profileArrayData = ArrayData::create($profileArray);
-
-                    $r->Media = $mediaArrayList;
-                    $r->Profile = $profileArrayData;
-                } else {
-                    Injector::inst()->get(LoggerInterface::class)->info('unexpected Instagram-API response!' . json_encode($media));
+                } catch (Exception $e) {
+                    Injector::inst()->get(LoggerInterface::class)->error('Instagram API call failed: ' . $e->getMessage());
                     $cacheKey = $this->errorCacheKey();
                 }
+                $this->cache->set($cacheKey, $r);
+            } else {
+                Injector::inst()->get(LoggerInterface::class)->info('No valid Instagram token available');
+                $cacheKey = $this->errorCacheKey();
                 $this->cache->set($cacheKey, $r);
             }
         } else {
@@ -237,14 +252,14 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         Injector::inst()->get(CacheInterface::class . '.InstagramCache')->clear();
     }
 
-    public function getType()
+    public function getType(): string
     {
-        return _t(self::class . '.NAME', 'Instagram Feed');
+        return _t(__CLASS__ . '.NAME', 'Instagram Feed');
     }
 
     // short cache lifetime on unexpected response,
     // prevents API hammering on every request
-    public function errorCacheKey()
+    public function errorCacheKey(): int
     {
         // Returns a new number every x minutes
         return (int)(time() / 60 / 3);

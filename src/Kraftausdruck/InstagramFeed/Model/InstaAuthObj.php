@@ -8,7 +8,7 @@ class InstaAuthObj extends DataObject
 {
     private static $db = [
         'LongLivedToken' => 'Text',
-        'user_id' => 'Varchar(255)'
+        'user_id' => 'Varchar'
     ];
 
     private static $table_name = 'InstaAuthObj';
