@@ -4,16 +4,16 @@ namespace Kraftausdruck\InstagramFeed\Elements;
 
 use Exception;
 use Psr\Log\LoggerInterface;
-use SilverStripe\ORM\ArrayList;
 use SilverStripe\Core\Flushable;
-use SilverStripe\View\ArrayData;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\Core\Environment;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Forms\HeaderField;
 use EspressoDev\Instagram\Instagram;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\LiteralField;
+use SilverStripe\Model\List\ArrayList;
 use SilverStripe\Core\Injector\Injector;
 use DNADesign\Elemental\Models\BaseElement;
 use SilverStripe\Forms\GridField\GridField;

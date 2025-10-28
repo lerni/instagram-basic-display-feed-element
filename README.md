@@ -1,7 +1,7 @@
 # Silverstripe instagram-basic-display-feed-element
 Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-php](https://github.com/espresso-dev/instagram-php) and caches the API-response for performance reasons. Since different scrapers lead to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml`-config or `.env`, the rotating token in DB.
 
-**As of December 2024 https://github.com/espresso-dev/instagram-php is used and not https://github.com/espresso-dev/instagram-basic-display-php anymore. `instagram_business_basic` scope is in use. A business- or creator-account is needed for API-access. ATM this only works with dev-master.**
+**As of December 2024 https://github.com/espresso-dev/instagram-php is used and not https://github.com/espresso-dev/instagram-basic-display-php anymore. `instagram_business_basic` scope is in use. A business- or creator-account is needed for API-access. ATM this only works with dev-master or the 6.x brach which is for SS 6.x.**
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE.md)
 
@@ -26,18 +26,20 @@ You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-b
 
 1. Install the module
 2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `https://DOMAIN.TLD/_instaauth` as redirectUri
-    - create an Instagram app per other services (Sonstiges -> Business) on https://developers.facebook.com
+    - create an Instagram app per other services (Other -> Business) on https://developers.facebook.com
         - add Instagram to the App
-    - add Instagram-Tester (Rolles add -> Instagram-Tester)
+
+        Sometimes you just can't - try reloading, different browser or do some other black magic :shrug:
+    - add Instagram-Tester (Roles add -> Instagram-Tester)
     - Login on Instagram & accept/confirm
         - Settings
-            - Website-Berechtigungen
-                - Apps und Websites
-                    - Accept Tester-Einladungen
+            - Website Permissions
+                - Apps and Websites
+                    - Accept Tester Invitations
 3. Add `appId` & `appSecret` in yml-config or `.env` like below & `?flush`
     - make sure to use those from the "Instagram", not "App-Settings"!
 4. Create an Instagram Feed Element & click on the link in the setting-tab to authenticate
-    - <em>**dev-master** create a token in developers.facebook.com and add it manually to the element under setting, since ATM creating one per link throws: "Ungültige Anfrage: Anfrageparameter sind ungültig: Invalid redirect_uri". May it just works in live mode?</em>
+    - <em>**dev-master** create a token in developers.facebook.com and add it manually to the element under settings, since currently creating one via link throws: "Invalid request: Request parameters are invalid: Invalid redirect_uri". May it just works in live mode?</em>
 5. Reload CMS to see the generated token
 6. That's it. Token 'll be updated if older than 30 days on request basis. This means, if a token is older than 30 days and from there on no request is made (element never shown to any visitor), the token invalidates and a warning is thrown. To "fix" this, you'll need to delete all tokens and regenerate one with the link provided in CMS.
 
@@ -56,10 +58,12 @@ KRAFT_INSTAFEED_VERIFICATION_TOKEN='SetThisToSomethingRandom'
 ```
 
 # Styling
-Example SCSS square-styles with text as hover overlay. [Feather Icons](https://feathericons.com/) are suggested - you need to load those yourself.
-```scss
-$lh: 1.41;
-$white: #fff;
+Example styling with text as hover overlay.
+<details>
+<summary>CSS with a bit PostCSS magic</summary>
+
+
+```css
 .instafeed {
 	display: flex;
 	flex-wrap: wrap;
@@ -73,10 +77,10 @@ $white: #fff;
 		display: block;
 		width: auto;
 		height: 500px;
-		@include breakpoint($Lneg) {
+		@media (max-width: 980px) {
 			height: 400px;
 		}
-		@include breakpoint($Sneg) {
+		@media (max-width: 480px) {
 			height: 300px;
 		}
 		figure {
@@ -91,44 +95,58 @@ $white: #fff;
 			}
 			figcaption {
 				position: absolute;
-				top: 0;
-				left: 0;
-				right: 0;
-				bottom: 0;
+				inset: 0;
 				opacity: 0;
 				transition: opacity 120ms linear;
 				z-index: 1;
-				color: $white;
-				font-size: .8em;
-				padding: #{math.div($lh,2)}em;
+				color: var(--white);
+				font-size: var(--font-size--small);
+				padding: calc(var(--lh) * 1em);
 				display: flex;
 				flex-direction: column;
 				background-color: rgba(0,0,0,.8);
-				span[data-feather="instagram"] {
+				span[data-icon="instagram"] {
 					transition: transform 120ms linear;
 					transform: scale(.4);
-					width: 1.4em;
-					height: 1.4em;
-					background-image: svg-load('../images/svg/instagram.svg', stroke=#{$white});
+					width: calc(var(--lh) * 1em);
+					height: calc(var(--lh) * 1em);
+					background-image: svg-load("instagram.svg", stroke=#fff);
 					margin: auto auto 0 auto;
 				}
 			}
-			&:hover {
-				figcaption {
-					opacity: 1;
-					span[data-feather="instagram"] {
-						transform: scale(1);
-					}
-				}
-			}
+            @media (hover: hover) {
+                &:hover {
+                    figcaption {
+                        opacity: 1;
+                        span[data-icon="instagram"] {
+                            transform: scale(1);
+                        }
+                    }
+                }
+            }
 		}
 		video {
 			height: 100%;
 			width: 100%;
 		}
+        @media (hover: none) {
+            &:focus,
+            &:focus-within,
+            &:active {
+                figure figcaption {
+                    pointer-events: none;
+                    opacity: 1;
+                    span[data-icon="instagram"] {
+                        transform: scale(1);
+                    }
+                }
+            }
+        }
 	}
 }
 ```
+</details>
+
 # Troubleshooting
 If things go wrong, you may want to check [Facebook Platform Status](https://metastatus.com/).
 

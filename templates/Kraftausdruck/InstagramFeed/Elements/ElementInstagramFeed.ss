@@ -26,7 +26,7 @@
 								<% end_if %>
 								<figcaption>
 									{$Up.caption}
-									<span data-feather="instagram"></span>
+									<span data-icon="instagram"></span>
 								</figcaption>
 							</figure>
 						</a>
@@ -47,7 +47,7 @@
 							<% else_if $media_type == "IMAGE" %>
 								<img loading="lazy" src="$media_url" alt="$caption" />
 							<% end_if %>
-							<figcaption>{$caption}<span data-feather="instagram"></span></figcaption>
+							<figcaption>{$caption}<span data-icon="instagram"></span></figcaption>
 						</figure>
 					</a>
 				<% end_if %>
