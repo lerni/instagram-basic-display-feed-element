@@ -10,6 +10,7 @@ use SilverStripe\Model\ArrayData;
 use SilverStripe\Core\Environment;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Forms\HeaderField;
+use SilverStripe\Control\Director;
 use EspressoDev\Instagram\Instagram;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\LiteralField;
@@ -47,6 +48,8 @@ class ElementInstagramFeed extends BaseElement implements Flushable
     ];
 
     private static $inline_editable = false;
+
+    private static $refresh_token_just_in_live_env = true;
 
     public function getCMSFields()
     {
@@ -167,15 +170,22 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                 if ($latestAuthObj->LastEdited < $agoHard) {
                     Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
                 } else {
-                    try {
-                        $instagram->setAccessToken($LongLivedToken);
-                        $refreshedToken = $instagram->refreshLongLivedToken($latestAuthObj->LongLivedToken, true);
-                        $latestAuthObj->LongLivedToken = $LongLivedToken = $refreshedToken->access_token;
-                        $latestAuthObj->write();
-                        Injector::inst()->get(LoggerInterface::class)->info('Instagram token refreshed successfully');
-                    } catch (Exception $e) {
-                        Injector::inst()->get(LoggerInterface::class)->error('Failed to refresh Instagram token: ' . $e->getMessage());
-                        return false;
+                    // Check if token refresh should only happen in live environment
+                    $refreshTokenJustInLive = $this->config()->get('refresh_token_just_in_live_env');
+                    $shouldRefresh = !$refreshTokenJustInLive || Director::isLive();
+                    if ($shouldRefresh) {
+                        try {
+                            $instagram->setAccessToken($LongLivedToken);
+                            $refreshedToken = $instagram->refreshLongLivedToken($latestAuthObj->LongLivedToken, true);
+                            $latestAuthObj->LongLivedToken = $LongLivedToken = $refreshedToken->access_token;
+                            $latestAuthObj->write();
+                            Injector::inst()->get(LoggerInterface::class)->info('Instagram token refreshed successfully');
+                        } catch (Exception $e) {
+                            Injector::inst()->get(LoggerInterface::class)->error('Failed to refresh Instagram token: ' . $e->getMessage());
+                            return false;
+                        }
+                    } else {
+                        Injector::inst()->get(LoggerInterface::class)->info('Instagram token refresh skipped (not in live environment)');
                     }
                 }
             }
