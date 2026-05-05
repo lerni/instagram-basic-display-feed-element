@@ -9,8 +9,12 @@
     "instagram"
   ],
   "homepage": "https://github.com/lerni/instagram-basic-display-feed-element",
+  "support": {
+    "issues": "https://github.com/lerni/instagram-basic-display-feed-element/issues"
+  },
   "require": {
     "silverstripe/framework": "^6.0",
+    "dnadesign/silverstripe-elemental": "^6",
     "espresso-dev/instagram-php": "^1"
   },
   "extra": {

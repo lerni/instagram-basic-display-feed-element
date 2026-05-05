@@ -1,7 +1,7 @@
 # Silverstripe instagram-basic-display-feed-element
 Instagram feed in a dnadesign/silverstripe-elemental-element. It utilizes [espresso-dev/instagram-php](https://github.com/espresso-dev/instagram-php) and caches the API-response for performance reasons. Since different scrapers lead to all sorts of problems - mostly cookie/session related, this module came to existence. `appId` & `appSecret` are stored in `yml`-config or `.env`, the rotating token in DB.
 
-**As of December 2024 https://github.com/espresso-dev/instagram-php is used and not https://github.com/espresso-dev/instagram-basic-display-php anymore. `instagram_business_basic` scope is in use. A business- or creator-account is needed for API-access. ATM this only works with dev-master or the 6.x brach which is for SS 6.x.**
+**As of December 2024 https://github.com/espresso-dev/instagram-php is used instead of https://github.com/espresso-dev/instagram-basic-display-php. `instagram_business_basic` scope is in use. A business- or creator-account is needed for API access.**
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](LICENSE.md)
 
@@ -17,12 +17,12 @@ composer require lerni/instagram-basic-display-feed-element
 * Run a `dev/build`
 
 ## Requirements
-* Silverstripe 5.x
+* Silverstripe 6.x
 * dnadesign/silverstripe-elemental
 * espresso-dev/instagram-php 1.x
 
 ## Configuration
-You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret` ([Instagram not FB](https://stackoverflow.com/questions/60258144/invalid-platform-app-error-using-instagram-basic-display-api)). `redirectUri` will be `DYNAMICALLY-SET-HOST.TLD/_instaauth` but you can also set it explicit with a domain per yml-config. Make sure to configure the correct values (e.g. dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one in the setting-tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
+You'll need to set up a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) for basic display and set `appId` & `appSecret` ([Instagram not FB](https://stackoverflow.com/questions/60258144/invalid-platform-app-error-using-instagram-basic-display-api)). `redirectUri` will be `DYNAMICALLY-SET-HOST.TLD/_instaauth` but you can also set it explicitly with a domain per yml-config. Make sure to configure the correct values (e.g. dev-url) in your FB App! If no token is generated yet, you'll find a link to generate one in the settings tab of the element. The token 'll be renewed automatically (on request basis) if older than 30 days.
 
 1. Install the module
 2. Create a [FB App](https://developers.facebook.com/docs/instagram-basic-display-api/getting-started/) use `https://DOMAIN.TLD/_instaauth` as redirectUri
@@ -30,18 +30,17 @@ You'll need to setup a [FB App](https://developers.facebook.com/docs/instagram-b
         - add Instagram to the App
 
         Sometimes you just can't - try reloading, different browser or do some other black magic :shrug:
-    - add Instagram-Tester (Roles add -> Instagram-Tester)
+    - add Instagram-Tester (Roles → Add → Instagram-Tester)
     - Login on Instagram & accept/confirm
         - Settings
             - Website Permissions
                 - Apps and Websites
                     - Accept Tester Invitations
 3. Add `appId` & `appSecret` in yml-config or `.env` like below & `?flush`
-    - make sure to use those from the "Instagram", not "App-Settings"!
-4. Create an Instagram Feed Element & click on the link in the setting-tab to authenticate
-    - <em>**dev-master** create a token in developers.facebook.com and add it manually to the element under settings, since currently creating one via link throws: "Invalid request: Request parameters are invalid: Invalid redirect_uri". May it just works in live mode?</em>
+    - make sure to use the credentials from the Instagram settings, not the general App Settings!
+4. Create an Instagram Feed Element & click on the link in the settings tab to authenticate
 5. Reload CMS to see the generated token
-6. That's it. Token 'll be updated if older than 30 days on request basis. This means, if a token is older than 30 days and from there on no request is made (element never shown to any visitor), the token invalidates and a warning is thrown. To "fix" this, you'll need to delete all tokens and regenerate one with the link provided in CMS.
+6. That's it. The token will be updated if older than 30 days on request basis. This means, if a token is older than 30 days and from then on no request is made (element never shown to any visitor), the token invalidates and a warning is thrown. To fix this, delete all tokens and regenerate one with the link provided in CMS.
 
 ```yaml
 Kraftausdruck\InstagramFeed\Control\InstaAuthController:

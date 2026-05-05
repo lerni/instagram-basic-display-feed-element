@@ -12,6 +12,10 @@ SilverStripe\Core\Injector\Injector:
       defaultLifetime: 1200
       namespace: "InstagramCache"
 
+Kraftausdruck\InstagramFeed\Control\InstaAuthController:
+  scopes:
+    - instagram_business_basic
+
 # Kraftausdruck\InstagramFeed\Control\InstaAuthController:
 #   credentials:
 #     appId: ''

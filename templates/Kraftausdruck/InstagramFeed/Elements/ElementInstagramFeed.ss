@@ -1,6 +1,4 @@
-<%-- require themedCSS("dist/css/instafeed") --%>
-<%-- require themedCSS("dist/css/swiper") --%>
-<%-- require javascript("themes/default/dist/js/swiper.js") --%>
+<%-- vite 'src/css/instafeed.css', 'src/css/swiper.css', 'src/js/swiper.js' --%>
 <%-- $InstagramFeed.Profile.username --%>
 <%-- include App/Includes/ElementTitle --%>
 <% if $HTML %><div class="typography">{$HTML}</div><% end_if %>
@@ -15,10 +13,10 @@
 								<div class="swiper-wrapper">
 					<% end_if %>
 					<% loop $Children %><%-- per default we show just one - may just incrase limit? --%>
-						<a class="swiper-slide $media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
-							<figure >
+						<a class="swiper-slide $media_type.LowerCase" href="$permalink?img_index={$Pos}" target="_blank" rel="noopener" aria-label="<% if $Up.caption %>$Up.caption.LimitCharacters(80)<% else %><%t Kraftausdruck\InstagramFeed\Elements\ElementInstagramFeed.OpenOnInstagram 'Open on Instagram' %><% end_if %>">
+							<figure>
 								<% if $media_type == "VIDEO" %>
-									<video muted poster="$thumbnail_url" autoplay loop playsinline style="width:100%">
+									<video muted poster="$thumbnail_url" autoplay loop playsinline>
 										<source src="$media_url" type="video/mp4">
 									</video>
 								<% else_if $media_type == "IMAGE" %>
@@ -38,10 +36,10 @@
 						</div>
 					<% end_if %>
 				<% else %>
-					<a class="swiper-slide $media_type.LowerCase" href="$permalink" target="_blank" rel="noopener">
+				    <a class="swiper-slide $media_type.LowerCase" href="$permalink" target="_blank" rel="noopener" aria-label="<% if $caption %>$caption.LimitCharacters(80)<% else %><%t Kraftausdruck\InstagramFeed\Elements\ElementInstagramFeed.OpenOnInstagram 'Open on Instagram' %><% end_if %>">
 						<figure>
 							<% if $media_type == "VIDEO" %>
-								<video muted poster="$thumbnail_url" autoplay loop playsinline style="width:100%">
+								<video muted poster="$thumbnail_url" autoplay loop playsinline>
 									<source src="$media_url" type="video/mp4">
 								</video>
 							<% else_if $media_type == "IMAGE" %>

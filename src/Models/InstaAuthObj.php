@@ -8,7 +8,7 @@ class InstaAuthObj extends DataObject
 {
     private static $db = [
         'LongLivedToken' => 'Text',
-        'user_id' => 'Varchar'
+        'user_id' => 'Varchar',
     ];
 
     private static $table_name = 'InstaAuthObj';
@@ -18,12 +18,13 @@ class InstaAuthObj extends DataObject
     private static $summary_fields = [
         'Created',
         'LastEdited',
-        'user_id'
+        'user_id',
     ];
 
     public function getCMSFields()
     {
         $fields = parent::getCMSFields();
+
         return $fields;
     }
 }

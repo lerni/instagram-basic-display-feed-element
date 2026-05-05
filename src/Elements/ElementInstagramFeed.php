@@ -7,10 +7,10 @@ use Psr\Log\LoggerInterface;
 use SilverStripe\Core\Flushable;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Model\ArrayData;
+use SilverStripe\Control\Director;
 use SilverStripe\Core\Environment;
 use Psr\SimpleCache\CacheInterface;
 use SilverStripe\Forms\HeaderField;
-use SilverStripe\Control\Director;
 use EspressoDev\Instagram\Instagram;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\Forms\LiteralField;
@@ -22,6 +22,7 @@ use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
 use SilverStripe\Forms\GridField\GridFieldConfig_Base;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
+use SilverStripe\Forms\GridField\GridFieldFilterHeader;
 use Kraftausdruck\InstagramFeed\Control\InstaAuthController;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 
@@ -29,7 +30,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
 {
     private static $db = [
         'HTML' => 'HTMLText',
-        'Limit' => 'Int'
+        'Limit' => 'Int',
     ];
     private static $has_one = [];
     private static $has_many = [];
@@ -44,7 +45,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
     private static $icon = 'font-icon-block-instagram';
 
     private static $defaults = [
-        'Limit' => 4
+        'Limit' => 4,
     ];
 
     private static $inline_editable = false;
@@ -61,7 +62,7 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             $instaCredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
         }
         $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: ($instaCredentials['appId'] ?? null);
-        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET')?: ($instaCredentials['appSecret'] ?? null);
+        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: ($instaCredentials['appSecret'] ?? null);
 
         $missing = [];
         if (!$appId) {
@@ -70,62 +71,63 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         if (!$appSecret) {
             $missing[] = 'appSecret | KRAFT_INSTAFEED_APP_SECRET';
         }
-        if (count($missing) ) {
+        if (count($missing)) {
             $missing = implode(' & ', $missing);
-            $message = _t(__CLASS__ . '.APIValuesMissing', 'API: {missing} are missing.', ['missing' => $missing]);
+            $message = _t(self::class . '.APIValuesMissing', 'API: {missing} are missing.', ['missing' => $missing]);
             $fields->unshift(
                 LiteralField::create(
                     'APIValuesMissing',
                     sprintf(
                         '<p class="alert alert-warning">%s</p>',
-                        $message
-                    )
-                )
+                        $message,
+                    ),
+                ),
             );
         }
 
         if ($TextEditor = $fields->dataFieldByName('HTML')) {
-            $TextEditor->setTitle(_t(__CLASS__ . '.HTMLFIELDTITLE', 'Text'));
+            $TextEditor->setTitle(_t(self::class . '.HTMLFIELDTITLE', 'Text'));
             $TextEditor->setRows(16);
         }
 
         if ($LimitField = $fields->dataFieldByName('Limit')) {
-            $LimitField->setTitle(_t(__CLASS__ . '.LIMITFIELDTITLE', 'Limit'));
-            $LimitField->setDescription(_t(__CLASS__ . '.LIMITFIELDDESCRIPTION', '0 = all | default 4'));
+            $LimitField->setTitle(_t(self::class . '.LIMITFIELDTITLE', 'Limit'));
+            $LimitField->setDescription(_t(self::class . '.LIMITFIELDDESCRIPTION', '0 = all | default 4'));
         }
 
         $verificationToken = Environment::getEnv('KRAFT_INSTAFEED_VERIFICATION_TOKEN') ?: ($instaCredentials['verificationToken'] ?? null);
         $fields->addFieldsToTab('Root.Settings', [
             HeaderField::create('InstagramAPI', 'Instagram API'),
             $redirectUriField = TextField::create('redirectUriTEXT', 'redirectUri', InstaAuthController::getAuthControllerRoute())->setReadonly(true),
-            $verificationTokenField = TextField::create('verificationTokenTEXT', 'verificationToken', $verificationToken)->setReadonly(true)
+            $verificationTokenField = TextField::create('verificationTokenTEXT', 'verificationToken', $verificationToken)->setReadonly(true),
         ]);
 
-        $redirectUriField->setDescription(_t(__CLASS__ . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
-        $verificationTokenField->setDescription(_t(__CLASS__ . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
+        $redirectUriField->setDescription(_t(self::class . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
+        $verificationTokenField->setDescription(_t(self::class . '.VERIFICATIONTOKENFIELDDESCRIPTION', 'This token must be deposited in the FB application as the webhook verification token.'));
 
         if (!$this->getLatestToken()) {
             $instagram = $this->InstagramInstance();
 
             $fields->addFieldToTab(
                 'Root.Settings',
-                LiteralField::create('getLoginURL', _t(__CLASS__ . '.LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="' . $instagram->getLoginUrl() . '" target="_blank" rel="noopener">' . $this->getLoginURL() . '</a><br/>')
+                LiteralField::create('getLoginURL', _t(self::class . '.LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="' . $instagram->getLoginUrl() . '" target="_blank" rel="noopener">' . $this->getLoginURL() . '</a><br/>'),
             );
         }
 
-        // $InstaAuthObjGridFieldConfig = GridFieldConfig_Base::create(20);
-        $InstaAuthObjGridFieldConfig = GridFieldConfig_RecordEditor::create();
-        // $InstaAuthObjGridFieldConfig->addComponents(
-        //     new GridFieldDeleteAction()
-        // );
-        $gridField = new GridField('InstaAuthObj', _t(__CLASS__ . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('LastEdited DESC'), $InstaAuthObjGridFieldConfig);
-        $gridField->setDescription(_t(__CLASS__ . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
+        $InstaAuthObjGridFieldConfig = GridFieldConfig_Base::create(20);
+        // $InstaAuthObjGridFieldConfig = GridFieldConfig_RecordEditor::create();
+        $InstaAuthObjGridFieldConfig->addComponents(
+            new GridFieldDeleteAction(),
+        );
+        $InstaAuthObjGridFieldConfig->removeComponentsByType(GridFieldFilterHeader::class);
+        $gridField = GridField::create('InstaAuthObj', _t(self::class . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('LastEdited DESC'), $InstaAuthObjGridFieldConfig);
+        $gridField->setDescription(_t(self::class . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
 
         $InstaAuthObjGridFieldConfig->getComponentByType(GridFieldDataColumns::class)->setDisplayFields([
             'user_id' => 'User ID',
             'Created' => 'Created',
             'LastEdited' => 'Updated',
-            'LongLivedToken.LimitCharacters' => '60 days token'
+            'LongLivedToken.LimitCharacters' => '60 days token',
         ]);
 
         $fields->addFieldToTab('Root.Settings', $gridField);
@@ -140,68 +142,73 @@ class ElementInstagramFeed extends BaseElement implements Flushable
             $instaCredentials = Config::inst()->get(InstaAuthController::class, 'credentials');
         }
 
-        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: $instaCredentials['appId'];
-        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: $instaCredentials['appSecret'];
+        $appId = Environment::getEnv('KRAFT_INSTAFEED_APP_ID') ?: ($instaCredentials['appId'] ?? '');
+        $appSecret = Environment::getEnv('KRAFT_INSTAFEED_APP_SECRET') ?: ($instaCredentials['appSecret'] ?? '');
         $redirectUri = InstaAuthController::getAuthControllerRoute();
-        $instagram = new Instagram([
+
+        return new Instagram([
             'appId' => $appId,
             'appSecret' => $appSecret,
-            'redirectUri' => $redirectUri
+            'redirectUri' => $redirectUri,
         ]);
-        return $instagram;
     }
 
     public function getLoginURL(): string
     {
         $instagram = $this->InstagramInstance();
-        return $instagram->getLoginUrl();
+        $scopes = (array) Config::inst()->get(InstaAuthController::class, 'scopes');
+
+        return $instagram->getLoginUrl($scopes);
     }
 
     private function getLatestToken(): ?string
     {
         $latestAuthObj = InstaAuthObj::get()->first();
+        if (!$latestAuthObj) {
+            return null;
+        }
+
         $agoSoft = date('Y-m-d H:i:s', strtotime('-30 days'));
         $agoHard = date('Y-m-d H:i:s', strtotime('-60 days'));
-        $instagram = $this->InstagramInstance();
+        $longLivedToken = $latestAuthObj->LongLivedToken;
 
-        if ($latestAuthObj) {
-            $LongLivedToken = $latestAuthObj->LongLivedToken;
-            if ($latestAuthObj->LastEdited < $agoSoft) {
-                if ($latestAuthObj->LastEdited < $agoHard) {
-                    Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
-                } else {
-                    // Check if token refresh should only happen in live environment
-                    $refreshTokenJustInLive = $this->config()->get('refresh_token_just_in_live_env');
-                    $shouldRefresh = !$refreshTokenJustInLive || Director::isLive();
-                    if ($shouldRefresh) {
-                        try {
-                            $instagram->setAccessToken($LongLivedToken);
-                            $refreshedToken = $instagram->refreshLongLivedToken($latestAuthObj->LongLivedToken, true);
-                            $latestAuthObj->LongLivedToken = $LongLivedToken = $refreshedToken->access_token;
-                            $latestAuthObj->write();
-                            Injector::inst()->get(LoggerInterface::class)->info('Instagram token refreshed successfully');
-                        } catch (Exception $e) {
-                            Injector::inst()->get(LoggerInterface::class)->error('Failed to refresh Instagram token: ' . $e->getMessage());
-                            return false;
-                        }
-                    } else {
-                        Injector::inst()->get(LoggerInterface::class)->info('Instagram token refresh skipped (not in live environment)');
+        if ($latestAuthObj->LastEdited < $agoSoft) {
+            if ($latestAuthObj->LastEdited < $agoHard) {
+                Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
+            } else {
+                // Check if token refresh should only happen in live environment
+                $refreshTokenJustInLive = $this->config()->get('refresh_token_just_in_live_env');
+                $shouldRefresh = !$refreshTokenJustInLive || Director::isLive();
+                if ($shouldRefresh) {
+                    try {
+                        $instagram = $this->InstagramInstance();
+                        $instagram->setAccessToken($longLivedToken);
+                        $refreshedToken = $instagram->refreshLongLivedToken($longLivedToken, true);
+                        $latestAuthObj->LongLivedToken = $longLivedToken = $refreshedToken->access_token;
+                        $latestAuthObj->write();
+                        Injector::inst()->get(LoggerInterface::class)->info('Instagram token refreshed successfully');
+                    } catch (Exception $e) {
+                        Injector::inst()->get(LoggerInterface::class)->error('Failed to refresh Instagram token: ' . $e->getMessage());
+
+                        return null;
                     }
+                } else {
+                    Injector::inst()->get(LoggerInterface::class)->info('Instagram token refresh skipped (not in live environment)');
                 }
             }
-            return $LongLivedToken;
         }
-        return false;
+
+        return $longLivedToken;
     }
 
     public function getInstagramFeed(): ArrayData
     {
         $cacheKey = crc32(implode([$this->ID, $this->LastEdited, InstaAuthObj::get()->max('LastEdited')]));
-        $this->cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
+        $cache = Injector::inst()->get(CacheInterface::class . '.InstagramCache');
 
         $r = ArrayData::create();
 
-        if (!$this->cache->has($cacheKey)) {
+        if (!$cache->has($cacheKey)) {
 
             $instagram = $this->InstagramInstance();
 
@@ -244,27 +251,27 @@ class ElementInstagramFeed extends BaseElement implements Flushable
                     Injector::inst()->get(LoggerInterface::class)->error('Instagram API call failed: ' . $e->getMessage());
                     $cacheKey = $this->errorCacheKey();
                 }
-                $this->cache->set($cacheKey, $r);
+                $cache->set($cacheKey, $r);
             } else {
                 Injector::inst()->get(LoggerInterface::class)->info('No valid Instagram token available');
                 $cacheKey = $this->errorCacheKey();
-                $this->cache->set($cacheKey, $r);
+                $cache->set($cacheKey, $r);
             }
         } else {
-            $r = $this->cache->get($cacheKey);
+            $r = $cache->get($cacheKey);
         }
 
         return $r;
     }
 
-    public static function flush()
+    public static function flush(): void
     {
         Injector::inst()->get(CacheInterface::class . '.InstagramCache')->clear();
     }
 
     public function getType(): string
     {
-        return _t(__CLASS__ . '.NAME', 'Instagram Feed');
+        return _t(self::class . '.NAME', 'Instagram Feed');
     }
 
     // short cache lifetime on unexpected response,
