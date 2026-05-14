@@ -175,6 +175,8 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         if ($latestAuthObj->LastEdited < $agoSoft) {
             if ($latestAuthObj->LastEdited < $agoHard) {
                 Injector::inst()->get(LoggerInterface::class)->info('Instagram token expired!');
+
+                return null;
             } else {
                 // Check if token refresh should only happen in live environment
                 $refreshTokenJustInLive = $this->config()->get('refresh_token_just_in_live_env');

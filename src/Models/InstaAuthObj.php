@@ -20,11 +20,4 @@ class InstaAuthObj extends DataObject
         'LastEdited',
         'user_id',
     ];
-
-    public function getCMSFields()
-    {
-        $fields = parent::getCMSFields();
-
-        return $fields;
-    }
 }

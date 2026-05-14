@@ -1,6 +1,6 @@
 {
   "name": "lerni/instagram-basic-display-feed-element",
-  "description": "Instagram Feed for Silverstripe Elemental features Basic Display PHP API",
+  "description": "Instagram Feed for Silverstripe Elemental features Basic Display PHP API (instagram_business_basic scope)",
   "type": "silverstripe-vendormodule",
   "license": "BSD-3-Clause",
   "keywords": [
