@@ -110,11 +110,13 @@ Example styling with text as hover overlay.
 				display: flex;
 				flex-direction: column;
 				background-color: rgba(0,0,0,.8);
+				overflow-wrap: break-word;
+				word-wrap: break-word;
 				span[data-icon="instagram"] {
 					transition: transform 120ms linear;
 					transform: scale(.4);
-					width: calc(var(--lh) * 1em);
-					height: calc(var(--lh) * 1em);
+					width: 1lh;
+					height: 1lh;
 					background-image: svg-load("instagram.svg", stroke=#fff);
 					margin: auto auto 0 auto;
 				}

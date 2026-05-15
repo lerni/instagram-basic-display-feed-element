@@ -3,13 +3,13 @@
 <%-- include App/Includes/ElementTitle --%>
 <% if $HTML %><div class="typography">{$HTML}</div><% end_if %>
 <% if $InstagramFeed.Media %>
-	<div class="instafeed swiper-container" data-id="{$ID}" id="multiple-swiper-{$ID}">
+	<div class="instafeed swiper" data-id="{$ID}" id="multiple-swiper-{$ID}">
 		<div class="swiper-wrapper multiple">
 			<% loop $InstagramFeed.Media %>
 				<% if $media_type == "CAROUSEL_ALBUM" %>
 					<% if $Children.Count >= 1 %>
 						<div class="swiper-slide">
-							<div class="swiper-container swiper-v" data-id="{$Pos}" id="insta-swiper-{$Pos}">
+							<div class="swiper swiper-v" data-id="{$Pos}" id="insta-swiper-{$Pos}">
 								<div class="swiper-wrapper">
 					<% end_if %>
 					<% loop $Children %><%-- per default we show just one - may just incrase limit? --%>
