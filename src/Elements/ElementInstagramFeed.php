@@ -22,9 +22,11 @@ use Kraftausdruck\InstagramFeed\Models\InstaAuthObj;
 use SilverStripe\Forms\GridField\GridFieldConfig_Base;
 use SilverStripe\Forms\GridField\GridFieldDataColumns;
 use SilverStripe\Forms\GridField\GridFieldDeleteAction;
+use SilverStripe\Forms\GridField\GridFieldDetailForm;
+use SilverStripe\Forms\GridField\GridFieldEditButton;
+use SilverStripe\Forms\GridField\GridFieldAddNewButton;
 use SilverStripe\Forms\GridField\GridFieldFilterHeader;
 use Kraftausdruck\InstagramFeed\Control\InstaAuthController;
-use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 
 class ElementInstagramFeed extends BaseElement implements Flushable
 {
@@ -105,21 +107,36 @@ class ElementInstagramFeed extends BaseElement implements Flushable
         $redirectUriField->setDescription(_t(self::class . '.REDIRECTURIFIELDDESCRIPTION', 'This URL must be deposited in the FB application!'));
         $verificationTokenField->setDescription(_t(self::class . '.VERIFICATIONTOKENFIELDDESCRIPTION', 'This token must be deposited in the FB application as the webhook verification token.'));
 
+        $InstaAuthObjGridFieldConfig = GridFieldConfig_Base::create(20);
+        $InstaAuthObjGridFieldConfig->addComponents(
+            new GridFieldDeleteAction(),
+            new GridFieldEditButton(),
+            new GridFieldDetailForm(),
+        );
+        $InstaAuthObjGridFieldConfig->removeComponentsByType(GridFieldFilterHeader::class);
+
+
         if (!$this->getLatestToken()) {
             $instagram = $this->InstagramInstance();
 
-            $fields->addFieldToTab(
-                'Root.Settings',
-                LiteralField::create('getLoginURL', _t(self::class . '.LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '<br/> <a href="' . $instagram->getLoginUrl() . '" target="_blank" rel="noopener">' . $this->getLoginURL() . '</a><br/>'),
+            $loginField = LiteralField::create(
+                'getLoginURL',
+                '<p>' . _t(self::class . '.LOGINURLDESCRIPTION', 'Generate a API token with the link below') . '</p>'
+                . '<a href="' . $instagram->getLoginUrl() . '" target="_blank" rel="noopener" class="btn btn-primary">'
+                . _t(self::class . '.LOGINURLBUTTONLABEL', 'Login with Instagram')
+                . '</a>'
+                . '<p class="form__field-description">' . _t(
+                    self::class . '.LOGINURLFIELDDESCRIPTION',
+                    'Use the button above to set up an auth token automatically via the OAuth flow. '
+                    . 'Alternatively, if no public endpoint is available (e.g. on a dev environment), '
+                    . 'you can generate the token manually in the Facebook app and add it directly via the grid below.',
+                ) . '</p>',
             );
+            $fields->addFieldToTab('Root.Settings', $loginField);
+
+            $InstaAuthObjGridFieldConfig->addComponent(GridFieldAddNewButton::create('toolbar-header-left'));
         }
 
-        $InstaAuthObjGridFieldConfig = GridFieldConfig_Base::create(20);
-        // $InstaAuthObjGridFieldConfig = GridFieldConfig_RecordEditor::create();
-        $InstaAuthObjGridFieldConfig->addComponents(
-            new GridFieldDeleteAction(),
-        );
-        $InstaAuthObjGridFieldConfig->removeComponentsByType(GridFieldFilterHeader::class);
         $gridField = GridField::create('InstaAuthObj', _t(self::class . '.INSTAGRAMAUTHTOKENTITLE', 'Instagram Auth Token - latest one \'ll be used'), InstaAuthObj::get()->sort('LastEdited DESC'), $InstaAuthObjGridFieldConfig);
         $gridField->setDescription(_t(self::class . '.INSTAGRAMAUTHTOKENDESCRIPTION', 'You\'ll retrieve a link to generate a new Token if no one is present.'));
 
